@@ -1,5 +1,5 @@
 .PHONY: all
-all: binaries deployment
+all: binaries containers
 
 .PHONY: binaries
 binaries:target/squash-lite-container/squash-lite-container target/squash-lite
@@ -7,8 +7,8 @@ binaries:target/squash-lite-container/squash-lite-container target/squash-lite
 .PHONY: containers
 containers: target/squash-lite-container-dlv-container target/squash-lite-container-gdb-container 
 
-.PHONY: prep-containers
-prep-containers: ./target/squash-server/squash-server target/squash-server/Dockerfile target/squash-client/squash-client target/squash-client/Dockerfile
+.PHONY: push-containers
+push-containers: target/squash-lite-container-dlv-pushed target/squash-lite-container-gdb-pushed
 
 DOCKER_REPO ?= soloio
 VERSION ?= $(shell git describe --tags)
@@ -21,6 +21,12 @@ target:
 
 target/squash-lite: target $(SRCS)
 	go build -ldflags "-X github.com/solo-io/squash/pkg/lite/kube.ImageVersion=$(VERSION) -X github.com/solo-io/squash/pkg/lite/kube.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
+
+target/squash-lite-osx: target $(SRCS)
+	GOOS=darwin go build -ldflags "-X github.com/solo-io/squash/pkg/lite/kube.ImageVersion=$(VERSION) -X github.com/solo-io/squash/pkg/lite/kube.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
+
+target/squash-lite-linux: target $(SRCS)
+	GOOS=linux go build -ldflags "-X github.com/solo-io/squash/pkg/lite/kube.ImageVersion=$(VERSION) -X github.com/solo-io/squash/pkg/lite/kube.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
 
 target/squash-lite-container/:
 	[ -d $@ ] || mkdir -p $@
