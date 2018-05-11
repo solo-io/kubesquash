@@ -1,4 +1,4 @@
-# Squash Lite!
+#Squash Lite!
 
 ## What is it?
 A squash version with just a command line client and NO server to deploy.
