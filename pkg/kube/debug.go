@@ -33,10 +33,11 @@ const (
 )
 
 type SquashConfig struct {
-	ChooseDebugger bool
-	NoClean        bool
-	ChoosePod      bool
-	TimeoutSeconds int
+	ChooseDebugger   bool
+	NoClean          bool
+	ChoosePod        bool
+	NoDetectSkaffold bool
+	TimeoutSeconds   int
 }
 
 func StartDebugContainer(config SquashConfig) error {
@@ -62,8 +63,11 @@ func StartDebugContainer(config SquashConfig) error {
 	if err != nil {
 		return err
 	}
+	var image, podname string
 
-	image, podname, _ := SkaffoldConfigToPod(skaffoldFile)
+	if !config.NoDetectSkaffold {
+		image, podname, _ = SkaffoldConfigToPod(skaffoldFile)
+	}
 
 	dbg, err := dp.GetMissing("", podname, image)
 	if err != nil {
