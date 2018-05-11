@@ -20,13 +20,13 @@ target:
 	[ -d $@ ] || mkdir -p $@
 
 target/squash-lite: target $(SRCS)
-	go build -ldflags "-X github.com/solo-io/squash/pkg/lite/kube.ImageVersion=$(VERSION) -X github.com/solo-io/squash/pkg/lite/kube.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
+	go build -ldflags "-X github.com/solo-io/squash-lite/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/squash-lite/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
 
 target/squash-lite-osx: target $(SRCS)
-	GOOS=darwin go build -ldflags "-X github.com/solo-io/squash/pkg/lite/kube.ImageVersion=$(VERSION) -X github.com/solo-io/squash/pkg/lite/kube.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
+	GOOS=darwin go build -ldflags "-X github.com/solo-io/squash-lite/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/squash-lite/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
 
 target/squash-lite-linux: target $(SRCS)
-	GOOS=linux go build -ldflags "-X github.com/solo-io/squash/pkg/lite/kube.ImageVersion=$(VERSION) -X github.com/solo-io/squash/pkg/lite/kube.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
+	GOOS=linux go build -ldflags "-X github.com/solo-io/squash-lite/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/squash-lite/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
 
 target/squash-lite-container/:
 	[ -d $@ ] || mkdir -p $@

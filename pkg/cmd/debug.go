@@ -33,11 +33,13 @@ const (
 )
 
 type SquashConfig struct {
-	ChooseDebugger   bool
-	NoClean          bool
-	ChoosePod        bool
-	NoDetectSkaffold bool
-	TimeoutSeconds   int
+	ChooseDebugger        bool
+	NoClean               bool
+	ChoosePod             bool
+	NoDetectSkaffold      bool
+	TimeoutSeconds        int
+	DebugContainerVersion string
+	DebugContainerRepo    string
 }
 
 func StartDebugContainer(config SquashConfig) error {
@@ -53,6 +55,7 @@ func StartDebugContainer(config SquashConfig) error {
 	}
 	minoirver, err := strconv.Atoi(si.Minor)
 	if err != nil {
+		fmt.Println("NOTE: can't detect kubernetes version.")
 		return err
 	}
 	if minoirver < 10 {
@@ -447,7 +450,7 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 			NodeName:      in.Spec.NodeName,
 			Containers: []v1.Container{{
 				Name:      "squash-lite-container",
-				Image:     ImageRepo + "/" + ImageContainer + "-" + debugger + ":" + ImageVersion,
+				Image:     dp.config.DebugContainerRepo + "/" + ImageContainer + "-" + debugger + ":" + dp.config.DebugContainerVersion,
 				Stdin:     true,
 				StdinOnce: true,
 				TTY:       true,
