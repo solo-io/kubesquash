@@ -5,30 +5,38 @@ A squash version with just a command line client and NO server to deploy.
 
 Right now squash lite only works for kubernetes, debugging go programs using dlv.
 
-## Prerequisite
-Just `kubectl` configured to your cluster. And obviously some go program to debug.
+## Prerequisites
+- Kubernetes 1.10+ cluster with ability to run privileged containers (such as `minikube`).
+- `kubectl` configured to your cluster.
+- And obviously some go program to debug.
 
 ## How to use it?
 
-Download the binary, and then just run it. You will be asked to input the pod you wish to debug. You will then be presented with a command line dlv prompt.
+Download the binary, and then just run it!
+You will be asked to input the pod you wish to debug. You will then be presented with a command line dlv prompt.
 
 ## Status
 This is a very initial version of squash lite. We released it early to get community feedback.
+Currently it works debugging `go` microservices from mac and linux. 
+You can also try `gdb`, if you are adventurous.
 
 # Future plans:
 
 - VSCode integration
 - More debuggers (python, java..)
-- Better Skaffold integration (to autodetect settings)
+- Better Skaffold integration (autodetect more settings)
 
 # To Use
 Grab squash lite from our releases page:
 
-https://github.com/solo-io/squash/releases
+https://github.com/solo-io/squash-lite/releases
 
-# To Build
+# How to Build
 
+Build binary and container:
 ```
-make DOCKER_REPO=your-docker-repo target/squash-lite-container-pushed
-make DOCKER_REPO=your-docker-repo target/squash-lite
-```
+make DOCKER_REPO=your-docker-repo
+``` 
+
+Push containers to docker hub:
+make DOCKER_REPO=your-docker-repo push-containers
