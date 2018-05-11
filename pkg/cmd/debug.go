@@ -1,4 +1,4 @@
-package kube
+package cmd
 
 import (
 	"context"

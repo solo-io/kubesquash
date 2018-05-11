@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/solo-io/squash-lite/pkg/kube"
+	"github.com/solo-io/squash-lite/pkg/cmd"
 )
 
 const descriptionUsage = `Normally squash lite requires no arguments. just run it!
@@ -15,7 +15,7 @@ scratch images at the moment (squash lite relys on the 'ls' command present in t
 `
 
 func main() {
-	var cfg kube.SquashConfig
+	var cfg cmd.SquashConfig
 	flag.Usage = func() {
 		fmt.Fprintf(flag.CommandLine.Output(), "Usage of %s:\n", os.Args[0])
 		fmt.Fprintf(flag.CommandLine.Output(), "%s\n", descriptionUsage)
@@ -29,7 +29,7 @@ func main() {
 	flag.IntVar(&cfg.TimeoutSeconds, "timeout", 300, "timeout in seconds to wait for debug pod to be ready")
 	flag.Parse()
 
-	err := kube.StartDebugContainer(cfg)
+	err := cmd.StartDebugContainer(cfg)
 	if err != nil {
 		fmt.Println(err)
 	}
