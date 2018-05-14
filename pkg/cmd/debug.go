@@ -254,7 +254,7 @@ func (dp *DebugPrepare) getClientSet() kubernetes.Interface {
 
 }
 
-func (dp *DebugPrepare) GetMissing(ns, podname, container string) (*Debugee, error) {
+func (dp *DebugPrepare) GetMissing(ns, podname, image string) (*Debugee, error) {
 
 	//	clientset.CoreV1().Namespace().
 	// see if namespace exist, and if not prompot for one.
@@ -271,7 +271,7 @@ func (dp *DebugPrepare) GetMissing(ns, podname, container string) (*Debugee, err
 
 	if podname == "" {
 		var err error
-		debuggee.Pod, err = dp.choosePod(debuggee.Namespace, container)
+		debuggee.Pod, err = dp.choosePod(debuggee.Namespace, image)
 		if err != nil {
 			return nil, errors.Wrap(err, "choosing pod")
 		}
@@ -283,13 +283,25 @@ func (dp *DebugPrepare) GetMissing(ns, podname, container string) (*Debugee, err
 		}
 	}
 
-	if container == "" {
+	if image == "" {
 		var err error
 		debuggee.Container, err = dp.chooseContainer(debuggee.Pod)
 		if err != nil {
 			return nil, errors.Wrap(err, "choosing container")
 		}
+	} else {
+
+		for _, podContainer := range debuggee.Pod.Spec.Containers {
+			if strings.HasPrefix(podContainer.Image, image) {
+				debuggee.Container = &podContainer
+				break
+			}
+		}
+		if debuggee.Container == nil {
+			return nil, errors.New("no such container image")
+		}
 	}
+
 	return &debuggee, nil
 }
 
@@ -390,7 +402,7 @@ func (dp *DebugPrepare) chooseNamespace() (string, error) {
 	return choice, nil
 }
 
-func (dp *DebugPrepare) choosePod(ns, container string) (*v1.Pod, error) {
+func (dp *DebugPrepare) choosePod(ns, image string) (*v1.Pod, error) {
 
 	var options metav1.ListOptions
 	pods, err := dp.getClientSet().CoreV1().Pods(ns).List(options)
@@ -399,11 +411,11 @@ func (dp *DebugPrepare) choosePod(ns, container string) (*v1.Pod, error) {
 	}
 	podName := make([]string, 0, len(pods.Items))
 	for _, pod := range pods.Items {
-		if dp.config.ChoosePod || container == "" {
+		if dp.config.ChoosePod || image == "" {
 			podName = append(podName, pod.ObjectMeta.Name)
 		} else {
 			for _, podContainer := range pod.Spec.Containers {
-				if strings.HasPrefix(podContainer.Image, container) {
+				if strings.HasPrefix(podContainer.Image, image) {
 					podName = append(podName, pod.ObjectMeta.Name)
 					break
 				}
