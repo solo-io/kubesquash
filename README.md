@@ -31,6 +31,8 @@ Grab squash lite from our releases page:
 
 https://github.com/solo-io/squash-lite/releases
 
+The first time it runs takes longer as it needs to download a container containing the debugger.
+
 # How to Build
 
 Build binary and container:
