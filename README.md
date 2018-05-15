@@ -1,4 +1,13 @@
-# Squash Lite!
+<h1 align="center">
+    <img src="/images/KubeSquash.png" alt="squash" width="216" height="248">
+  <br>
+  Debugger for Kubernetes
+</h1>
+
+
+<h4 align="center">Debug your microservices application running on Kubernetes</h4>
+<BR>
+
 
 ## What is it?
 A squash version with just a command line client and NO server to deploy.
