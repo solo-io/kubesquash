@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/solo-io/squash-lite/pkg/cmd"
+	"github.com/solo-io/kubesquash/pkg/cmd"
 )
 
 const descriptionUsage = `Normally squash lite requires no arguments. just run it!
@@ -26,6 +26,7 @@ func main() {
 	flag.BoolVar(&cfg.ChooseDebugger, "no-guess-debugger", false, "don't auto detect debugger to use")
 	flag.BoolVar(&cfg.ChoosePod, "no-guess-pod", false, "don't auto detect pod to use")
 	flag.BoolVar(&cfg.NoDetectSkaffold, "no-detect-pod", false, "don't auto settigns based on skaffold configuration present in current folder")
+	flag.BoolVar(&cfg.DebugServer, "debug-server", false, "start a debug server instead of an interactive session")
 	flag.IntVar(&cfg.TimeoutSeconds, "timeout", 300, "timeout in seconds to wait for debug pod to be ready")
 	flag.StringVar(&cfg.DebugContainerVersion, "container-version", cmd.ImageVersion, "debug container version to use")
 	flag.StringVar(&cfg.DebugContainerRepo, "container-repo", cmd.ImageRepo, "debug container repo to use")

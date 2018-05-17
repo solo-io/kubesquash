@@ -2,7 +2,7 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/solo-io/squash-lite/pkg/kube"
+	"github.com/solo-io/kubesquash/pkg/kube"
 )
 
 func main() {
