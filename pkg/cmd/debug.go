@@ -40,6 +40,7 @@ type SquashConfig struct {
 	TimeoutSeconds        int
 	DebugContainerVersion string
 	DebugContainerRepo    string
+	DebugServer           bool
 }
 
 func StartDebugContainer(config SquashConfig) error {
@@ -115,16 +116,22 @@ func StartDebugContainer(config SquashConfig) error {
 		return err
 	}
 
-	// attach to the created
-	cmd := exec.Command("kubectl", "attach", "-n", namespace, "-i", "-t", createdPod.ObjectMeta.Name, "-c", "squash-lite-container")
+	if dp.config.DebugServer {
+		// print the pod name and exit
+		fmt.Printf("%v", createdPod)
+	} else {
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	cmd.Stdin = os.Stdin
+		// attach to the created
+		cmd := exec.Command("kubectl", "attach", "-n", namespace, "-i", "-t", createdPod.ObjectMeta.Name, "-c", "squash-lite-container")
 
-	err = cmd.Run()
-	if err != nil {
-		return err
+		cmd.Stdout = os.Stdout
+		cmd.Stderr = os.Stderr
+		cmd.Stdin = os.Stdin
+
+		err = cmd.Run()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -482,6 +489,9 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 				}, {
 					Name:  "SQUASH_CONTAINER",
 					Value: containername,
+				}, {
+					Name:  "DEBUGGER_SERVER",
+					Value: fmt.Sprintf("%s", dp.config.DebugServer),
 				},
 				}},
 			},
