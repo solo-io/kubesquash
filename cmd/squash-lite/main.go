@@ -30,6 +30,12 @@ func main() {
 	flag.IntVar(&cfg.TimeoutSeconds, "timeout", 300, "timeout in seconds to wait for debug pod to be ready")
 	flag.StringVar(&cfg.DebugContainerVersion, "container-version", cmd.ImageVersion, "debug container version to use")
 	flag.StringVar(&cfg.DebugContainerRepo, "container-repo", cmd.ImageRepo, "debug container repo to use")
+
+	flag.StringVar(&cfg.Debugger, "debugger", "", "Debugger to use")
+	flag.StringVar(&cfg.Namespace, "namespace", "", "Namespace to debug")
+	flag.StringVar(&cfg.Pod, "pod", "", "Pod to debug")
+	flag.StringVar(&cfg.Container, "container", "", "Container to debug")
+
 	flag.Parse()
 
 	err := cmd.StartDebugContainer(cfg)

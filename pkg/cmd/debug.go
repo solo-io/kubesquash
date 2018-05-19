@@ -41,6 +41,12 @@ type SquashConfig struct {
 	DebugContainerVersion string
 	DebugContainerRepo    string
 	DebugServer           bool
+
+	Debugger  string
+	Namespace string
+	Pod       string
+	Container string
+	Machine   bool
 }
 
 func StartDebugContainer(config SquashConfig) error {
@@ -67,25 +73,27 @@ func StartDebugContainer(config SquashConfig) error {
 	if err != nil {
 		return err
 	}
-	var image, podname string
+	ns, podname, image := config.Namespace, config.Pod, config.Container
 
 	if !config.NoDetectSkaffold {
 		image, podname, _ = SkaffoldConfigToPod(skaffoldFile)
 	}
 
-	dbg, err := dp.GetMissing("", podname, image)
+	dbg, err := dp.GetMissing(ns, podname, image)
 	if err != nil {
 		return err
 	}
 
-	confirmed := false
-	prompt := &survey.Confirm{
-		Message: "Going to attach " + debugger + " to pod " + dbg.Pod.ObjectMeta.Name + ". continue?",
-		Default: true,
-	}
-	survey.AskOne(prompt, &confirmed, nil)
-	if !confirmed {
-		return errors.New("user aborted")
+	if !config.Machine {
+		confirmed := false
+		prompt := &survey.Confirm{
+			Message: "Going to attach " + debugger + " to pod " + dbg.Pod.ObjectMeta.Name + ". continue?",
+			Default: true,
+		}
+		survey.AskOne(prompt, &confirmed, nil)
+		if !confirmed {
+			return errors.New("user aborted")
+		}
 	}
 
 	dbgpod, err := dp.debugPodFor(debugger, dbg.Pod, dbg.Container.Name)
@@ -102,7 +110,7 @@ func StartDebugContainer(config SquashConfig) error {
 
 	// wait for runnign state
 	name := createdPod.ObjectMeta.Name
-	if !config.NoClean {
+	if (!dp.config.DebugServer) && (!config.NoClean) {
 		defer func() {
 			var options metav1.DeleteOptions
 			dp.getClientSet().CoreV1().Pods(namespace).Delete(name, &options)
@@ -118,9 +126,8 @@ func StartDebugContainer(config SquashConfig) error {
 
 	if dp.config.DebugServer {
 		// print the pod name and exit
-		fmt.Printf("%v", createdPod)
+		fmt.Printf("pod.name: %v", createdPod.Name)
 	} else {
-
 		// attach to the created
 		cmd := exec.Command("kubectl", "attach", "-n", namespace, "-i", "-t", createdPod.ObjectMeta.Name, "-c", "squash-lite-container")
 
@@ -133,7 +140,6 @@ func StartDebugContainer(config SquashConfig) error {
 			return err
 		}
 	}
-
 	return nil
 }
 
@@ -355,6 +361,10 @@ func (dp *DebugPrepare) detectLang() string {
 }
 
 func (dp *DebugPrepare) chooseDebugger() (string, error) {
+	if len(dp.config.Debugger) != 0 {
+		return dp.config.Debugger, nil
+	}
+
 	availableDebuggers := []string{"dlv", "gdb"}
 	debugger := dp.detectLang()
 
