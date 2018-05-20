@@ -24,9 +24,17 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.debugPod', () => {
+    let disposable = vscode.commands.registerCommand('extension.debugPod', async () => {
         // The code you place here will be executed every time your command is executed
-        se.debug();
+        try {
+            await se.debug();
+        } catch (err) {
+            if (err.message) {
+                vscode.window.showErrorMessage(err.message);
+            } else {
+                vscode.window.showErrorMessage("Unknown error has occurred");
+            }
+        }
     });
 
     context.subscriptions.push(disposable);
@@ -65,8 +73,8 @@ class SquashExtention {
         */
 
         if (!vscode.workspace.workspaceFolders) {
-            // TODO: error
-            return;
+            throw new Error("no workspace folders");
+
         }
 
         let workspace : vscode.WorkspaceFolder;
@@ -86,6 +94,7 @@ class SquashExtention {
             if (item) {
                 workspace = item.obj;
             } else {
+                console.log("debugging canceled");
                 return;
             }
         }
@@ -104,17 +113,17 @@ class SquashExtention {
         const item = await vscode.window.showQuickPick(podItems, podoptions);
 
         if (!item) {
-            return undefined;
+            console.log("chosing pod canceled - debugging canceled");
+            return;
         }
         let selectedPod = item.pod;
 
         // now invoke kubesquash
-        let stdout = await exec(`kubesquash -debug-server=true -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace} -container `);
+        let stdout = await exec(`kubesquash -debug-server=true -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
         let squashPodRegex = /pod.name:\s+(\d+)\s*$/g;
         let match = squashPodRegex.exec(stdout);
         if (match == null) {
-            // TODO: error message
-            return ;
+            throw new Error("can't parse output of kubesquash");
         }
         // get created pod name
         let squashPodName = match[1];
@@ -260,27 +269,11 @@ async function exec(cmd:string): Promise<string> {
             }
         };
 
-        let options = { async: true };
-        shelljs.exec(cmd, options, handler);
-    });
-
-    return promise;
-}
-
-function exec_async(cmd:string): Promise<any> {
-    console.log("Executing: " + cmd);
-    let promise = new Promise((resolve, reject) => {
-        let handler = function (code: number, stdout: string, stderr: string) {
-            if (code !== 0) {
-                reject(new ExecError(code, stdout, stderr));
-            } else {
-                resolve(stdout);
-            }
+        let options = {
+         async: true,
+         stdio: ['ignore', 'pipe', 'pipe'],
         };
-
-        let options = { async: true };
-        let child = shelljs.exec(cmd, options, handler);
-
+        shelljs.exec(cmd, options, handler);
     });
 
     return promise;
