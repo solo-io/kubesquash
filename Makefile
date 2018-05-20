@@ -2,16 +2,16 @@
 all: binaries containers
 
 .PHONY: binaries
-binaries:target/squash-lite-container/squash-lite-container target/squash-lite
+binaries:target/kubesquash-container/kubesquash-container target/kubesquash
 
 .PHONY: all-binaries
-all-binaries: target/squash-lite-linux target/squash-lite-osx
+all-binaries: target/kubesquash-linux target/kubesquash-osx
 
 .PHONY: containers
-containers: target/squash-lite-container-dlv-container target/squash-lite-container-gdb-container 
+containers: target/kubesquash-container-dlv-container target/kubesquash-container-gdb-container 
 
 .PHONY: push-containers
-push-containers: target/squash-lite-container-dlv-pushed target/squash-lite-container-gdb-pushed
+push-containers: target/kubesquash-container-dlv-pushed target/kubesquash-container-gdb-pushed
 
 DOCKER_REPO ?= soloio
 VERSION ?= $(shell git describe --tags)
@@ -22,43 +22,43 @@ SRCS=$(shell find ./pkg -name "*.go") $(shell find ./cmd -name "*.go")
 target:
 	[ -d $@ ] || mkdir -p $@
 
-target/squash-lite: target $(SRCS)
-	go build -ldflags "-X github.com/solo-io/kubesquash/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
+target/kubesquash: target $(SRCS)
+	go build -ldflags "-X github.com/solo-io/kubesquash/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/kubesquash
 
-target/squash-lite-osx: target $(SRCS)
-	GOOS=darwin go build -ldflags "-X github.com/solo-io/kubesquash/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
+target/kubesquash-osx: target $(SRCS)
+	GOOS=darwin go build -ldflags "-X github.com/solo-io/kubesquash/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/kubesquash
 
-target/squash-lite-linux: target $(SRCS)
-	GOOS=linux go build -ldflags "-X github.com/solo-io/kubesquash/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/squash-lite
+target/kubesquash-linux: target $(SRCS)
+	GOOS=linux go build -ldflags "-X github.com/solo-io/kubesquash/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/kubesquash
 
-target/squash-lite-container/:
+target/kubesquash-container/:
 	[ -d $@ ] || mkdir -p $@
 
-target/squash-lite-container/squash-lite-container: | target/squash-lite-container/
-target/squash-lite-container/squash-lite-container: $(SRCS)
-	GOOS=linux CGO_ENABLED=0  go build -ldflags '-w' -o ./target/squash-lite-container/squash-lite-container ./cmd/squash-lite-container/
+target/kubesquash-container/kubesquash-container: | target/kubesquash-container/
+target/kubesquash-container/kubesquash-container: $(SRCS)
+	GOOS=linux CGO_ENABLED=0  go build -ldflags '-w' -o ./target/kubesquash-container/kubesquash-container ./cmd/kubesquash-container/
 
 
-target/squash-lite-container/Dockerfile.dlv:    | target/squash-lite-container/
-target/squash-lite-container/Dockerfile.dlv: cmd/squash-lite-container/Dockerfile.dlv
-	cp cmd/squash-lite-container/Dockerfile.dlv target/squash-lite-container/Dockerfile.dlv
-target/squash-lite-container-dlv-container: ./target/squash-lite-container/squash-lite-container target/squash-lite-container/Dockerfile.dlv
-	docker build -f target/squash-lite-container/Dockerfile.dlv -t $(DOCKER_REPO)/squash-lite-container-dlv:$(VERSION) ./target/squash-lite-container/
+target/kubesquash-container/Dockerfile.dlv:    | target/kubesquash-container/
+target/kubesquash-container/Dockerfile.dlv: cmd/kubesquash-container/Dockerfile.dlv
+	cp cmd/kubesquash-container/Dockerfile.dlv target/kubesquash-container/Dockerfile.dlv
+target/kubesquash-container-dlv-container: ./target/kubesquash-container/kubesquash-container target/kubesquash-container/Dockerfile.dlv
+	docker build -f target/kubesquash-container/Dockerfile.dlv -t $(DOCKER_REPO)/kubesquash-container-dlv:$(VERSION) ./target/kubesquash-container/
 	touch $@
-target/squash-lite-container-dlv-pushed: target/squash-lite-container-dlv-container
-	docker push $(DOCKER_REPO)/squash-lite-container-dlv:$(VERSION)
+target/kubesquash-container-dlv-pushed: target/kubesquash-container-dlv-container
+	docker push $(DOCKER_REPO)/kubesquash-container-dlv:$(VERSION)
 	touch $@
 
 
 
-target/squash-lite-container/Dockerfile.gdb:    | target/squash-lite-container/
-target/squash-lite-container/Dockerfile.gdb: cmd/squash-lite-container/Dockerfile.gdb
-	cp cmd/squash-lite-container/Dockerfile.gdb target/squash-lite-container/Dockerfile.gdb
-target/squash-lite-container-gdb-container: ./target/squash-lite-container/squash-lite-container target/squash-lite-container/Dockerfile.gdb
-	docker build -f target/squash-lite-container/Dockerfile.gdb -t $(DOCKER_REPO)/squash-lite-container-gdb:$(VERSION) ./target/squash-lite-container/
+target/kubesquash-container/Dockerfile.gdb:    | target/kubesquash-container/
+target/kubesquash-container/Dockerfile.gdb: cmd/kubesquash-container/Dockerfile.gdb
+	cp cmd/kubesquash-container/Dockerfile.gdb target/kubesquash-container/Dockerfile.gdb
+target/kubesquash-container-gdb-container: ./target/kubesquash-container/kubesquash-container target/kubesquash-container/Dockerfile.gdb
+	docker build -f target/kubesquash-container/Dockerfile.gdb -t $(DOCKER_REPO)/kubesquash-container-gdb:$(VERSION) ./target/kubesquash-container/
 	touch $@
-target/squash-lite-container-gdb-pushed: target/squash-lite-container-gdb-container
-	docker push $(DOCKER_REPO)/squash-lite-container-gdb:$(VERSION)
+target/kubesquash-container-gdb-pushed: target/kubesquash-container-gdb-container
+	docker push $(DOCKER_REPO)/kubesquash-container-gdb:$(VERSION)
 	touch $@
 
 
@@ -67,4 +67,4 @@ target/squash-lite-container-gdb-pushed: target/squash-lite-container-gdb-contai
 clean:
 	rm -rf target
 
-dist: target/squash-lite-container-gdb-pushed target/squash-lite-container-dlv-pushed
+dist: target/kubesquash-container-gdb-pushed target/kubesquash-container-dlv-pushed
