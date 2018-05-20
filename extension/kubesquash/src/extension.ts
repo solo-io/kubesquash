@@ -119,7 +119,7 @@ class SquashExtention {
         let selectedPod = item.pod;
 
         // now invoke kubesquash
-        let stdout = await exec(`kubesquash -debug-server=true -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
+        let stdout = await exec(`kubesquash -machine -debug-server -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
         let squashPodRegex = /pod.name:\s+(\d+)\s*$/g;
         let match = squashPodRegex.exec(stdout);
         if (match == null) {
@@ -249,14 +249,6 @@ class ExecError extends Error {
         this.stdout = stdout;
     }
 }
-
-
-function exeAsync(cmd:string) {
-    console.log("Executing: " + cmd);
-    let options = { async: true };
-    shelljs.exec(cmd);
-}
-
 
 async function exec(cmd:string): Promise<string> {
     console.log("Executing: " + cmd);
