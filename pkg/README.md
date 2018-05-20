@@ -29,6 +29,6 @@ https://github.com/solo-io/squash/releases
 # To Build
 
 ```
-make DOCKER_REPO=your-docker-repo target/squash-lite-container-pushed
-make DOCKER_REPO=your-docker-repo target/squash-lite
+make DOCKER_REPO=your-docker-repo target/kubesquash-container-pushed
+make DOCKER_REPO=your-docker-repo target/kubesquash
 ```

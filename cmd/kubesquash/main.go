@@ -10,7 +10,7 @@ import (
 
 const descriptionUsage = `Normally squash lite requires no arguments. just run it!
 it works by creating additional privileged debug pod and then attaching to it. 
-Kubernetes with CRI is needed. Due to a technical limitation, squash-lite doesn't support 
+Kubernetes with CRI is needed. Due to a technical limitation, kubesquash doesn't support 
 scratch images at the moment (squash lite relys on the 'ls' command present in the image). 
 `
 
@@ -31,6 +31,7 @@ func main() {
 	flag.StringVar(&cfg.DebugContainerVersion, "container-version", cmd.ImageVersion, "debug container version to use")
 	flag.StringVar(&cfg.DebugContainerRepo, "container-repo", cmd.ImageRepo, "debug container repo to use")
 
+	flag.BoolVar(&cfg.Machine, "machine", false, "machine moode input and output")
 	flag.StringVar(&cfg.Debugger, "debugger", "", "Debugger to use")
 	flag.StringVar(&cfg.Namespace, "namespace", "", "Namespace to debug")
 	flag.StringVar(&cfg.Pod, "pod", "", "Pod to debug")

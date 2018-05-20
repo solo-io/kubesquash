@@ -27,7 +27,7 @@ var ImageVersion string
 var ImageRepo string
 
 const (
-	ImageContainer = "squash-lite-container"
+	ImageContainer = "kubesquash-container"
 	namespace      = "squash"
 	skaffoldFile   = "skaffold.yaml"
 )
@@ -109,7 +109,7 @@ func StartDebugContainer(config SquashConfig) error {
 	}
 
 	// attach to the created
-	cmd := exec.Command("kubectl", "attach", "-n", namespace, "-i", "-t", createdPod.ObjectMeta.Name, "-c", "squash-lite-container")
+	cmd := exec.Command("kubectl", "attach", "-n", namespace, "-i", "-t", createdPod.ObjectMeta.Name, "-c", "kubesquash-container")
 
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -434,15 +434,15 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: "squash-lite-container",
-			Labels:       map[string]string{"squash": "squash-lite-container"},
+			GenerateName: "kubesquash-container",
+			Labels:       map[string]string{"squash": "kubesquash-container"},
 		},
 		Spec: v1.PodSpec{
 			HostPID:       true,
 			RestartPolicy: v1.RestartPolicyNever,
 			NodeName:      in.Spec.NodeName,
 			Containers: []v1.Container{{
-				Name:      "squash-lite-container",
+				Name:      "kubesquash-container",
 				Image:     ImageRepo + "/" + ImageContainer + "-" + debugger + ":" + ImageVersion,
 				Stdin:     true,
 				StdinOnce: true,

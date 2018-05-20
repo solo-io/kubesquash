@@ -27,7 +27,7 @@ var ImageVersion string
 var ImageRepo string
 
 const (
-	ImageContainer = "squash-lite-container"
+	ImageContainer = "kubesquash-container"
 	namespace      = "squash"
 	skaffoldFile   = "skaffold.yaml"
 )
@@ -112,6 +112,8 @@ func StartDebugContainer(config SquashConfig) error {
 	// wait for runnign state
 	name := createdPod.ObjectMeta.Name
 	if (!dp.config.DebugServer) && (!config.NoClean) {
+		// do not remove the pod on a debug server as it is waiting for a
+		// connection
 		defer func() {
 			var options metav1.DeleteOptions
 			dp.getClientSet().CoreV1().Pods(namespace).Delete(name, &options)
@@ -130,7 +132,7 @@ func StartDebugContainer(config SquashConfig) error {
 		fmt.Printf("pod.name: %v", createdPod.Name)
 	} else {
 		// attach to the created
-		cmd := exec.Command("kubectl", "attach", "-n", namespace, "-i", "-t", createdPod.ObjectMeta.Name, "-c", "squash-lite-container")
+		cmd := exec.Command("kubectl", "attach", "-n", namespace, "-i", "-t", createdPod.ObjectMeta.Name, "-c", "kubesquash-container")
 
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
@@ -463,21 +465,25 @@ func (dp *DebugPrepare) choosePod(ns, image string) (*v1.Pod, error) {
 func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername string) (*v1.Pod, error) {
 	trueVar := true
 	const crisockvolume = "crisock"
+	one := ""
+	if dp.config.DebugServer {
+		one = "1"
+	}
 	templatePod := &v1.Pod{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "Pod",
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: "squash-lite-container",
-			Labels:       map[string]string{"squash": "squash-lite-container"},
+			GenerateName: "kubesquash-container",
+			Labels:       map[string]string{"squash": "kubesquash-container"},
 		},
 		Spec: v1.PodSpec{
 			HostPID:       true,
 			RestartPolicy: v1.RestartPolicyNever,
 			NodeName:      in.Spec.NodeName,
 			Containers: []v1.Container{{
-				Name:      "squash-lite-container",
+				Name:      "kubesquash-container",
 				Image:     dp.config.DebugContainerRepo + "/" + ImageContainer + "-" + debugger + ":" + dp.config.DebugContainerVersion,
 				Stdin:     true,
 				StdinOnce: true,
@@ -500,7 +506,7 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 					Value: containername,
 				}, {
 					Name:  "DEBUGGER_SERVER",
-					Value: fmt.Sprintf("%s", dp.config.DebugServer),
+					Value: fmt.Sprintf("%s", one),
 				},
 				}},
 			},
