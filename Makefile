@@ -45,6 +45,7 @@ target/kubesquash-container/Dockerfile.dlv: cmd/kubesquash-container/Dockerfile.
 target/kubesquash-container-dlv-container: ./target/kubesquash-container/kubesquash-container target/kubesquash-container/Dockerfile.dlv
 	docker build -f target/kubesquash-container/Dockerfile.dlv -t $(DOCKER_REPO)/kubesquash-container-dlv:$(VERSION) ./target/kubesquash-container/
 	touch $@
+
 target/kubesquash-container-dlv-pushed: target/kubesquash-container-dlv-container
 	docker push $(DOCKER_REPO)/kubesquash-container-dlv:$(VERSION)
 	touch $@

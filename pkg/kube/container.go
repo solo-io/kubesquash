@@ -30,7 +30,6 @@ func init() {
 	debuggerServer["dlv"] = &DebuggerInfo{CmdlineGen: func(pid int) []string {
 		return []string{"attach", fmt.Sprintf("%d", pid), "--listen=127.0.0.1:" + DebuggerPort, "--headless", "--log"}
 	}}
-
 }
 
 func Debug() error {
