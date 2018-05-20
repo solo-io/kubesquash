@@ -1,13 +1,47 @@
 {
   "name": "kubesquash",
   "displayName": "kubesquash",
-  "description": "Debug you micro-service via kubesquash using vscode UI",
+  "description": "Debug you micro-service with kubesquash",
   "version": "0.0.1",
   "publisher": "ilevine",
+  "author": {
+        "name": "solo.io",
+        "email": "idit.levine@solo.io",
+        "url": "https://www.solo.io"
+  },
+  "homepage": "https://github.com/solo-io/kubesquash/blob/master/README.md",
+    "bugs": {
+        "url": "https://github.com/solo-io/kubesquash/issues"
+  },
+  "icon": "../images/KubeSquash.png",
+  "galleryBanner": {
+      "color": "#4a4a4a",
+      "theme": "dark"
+  },
+  "badges": [
+      {
+          "url": "https://img.shields.io/badge/chat-on%20slack-brightgreen.svg",
+          "href": "http://slack.solo.io",
+          "description": "Chat at solo.io slack channel"
+      }
+  ],
+  "keywords": [
+        "docker",
+        "debugger",
+        "container",
+        "microservices",
+        "kubernetes"
+  ],
+  "repository": {
+        "type": "git",
+        "url": "https://github.com/solo-io/kubesquash.git"
+  },
+  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "vscode": "^1.23.0"
   },
   "categories": [
+    "Debuggers",
     "Other"
   ],
   "activationEvents": [
