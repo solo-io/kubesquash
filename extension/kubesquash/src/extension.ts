@@ -8,6 +8,9 @@ import * as shelljs from 'shelljs';
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
+const OutPort = 1236
+
+
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
@@ -21,11 +24,9 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.sayHello', () => {
+    let disposable = vscode.commands.registerCommand('extension.debugPod', () => {
         // The code you place here will be executed every time your command is executed
         se.debug();
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World!');
     });
 
     context.subscriptions.push(disposable);
@@ -108,7 +109,7 @@ class SquashExtention {
         let selectedPod = item.pod;
 
         // now invoke kubesquash
-        let stdout = await exec(`kubesquash -server -pod ${selectedPod.metadata.name}`);
+        let stdout = await exec(`kubesquash -debug-server=true -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace} -container `);
         let squashPodRegex = /pod.name:\s+(\d+)\s*$/g;
         let match = squashPodRegex.exec(stdout);
         if (match == null) {
@@ -117,34 +118,32 @@ class SquashExtention {
         }
         // get created pod name
         let squashPodName = match[1];
-        let pa = new PodAddress("squash", squashPodName, 1234);
+        let pa = new PodAddress("squash", squashPodName, OutPort);
 
-        // pod forward
+        // port forward
         let localport = await kubectl_portforward(pa);
 
         // start debugging!
         let debuggerconfig : vscode.DebugConfiguration =  {
             type: "go",
             name: "Remote",
-            request: "launch",``
+            request: "launch",
             mode: "remote",
             port: localport,
             host: "127.0.0.1",
         //    program: localpath,
         //    remotePath: remotepath,
-            //      stopOnEntry: true,
+        //    stopOnEntry: true,
             env: {},
             args: [],
             showLog: true,
             trace: "verbose"
         };
 
-
         return vscode.debug.startDebugging(
             workspace,
             debuggerconfig
         );
-
 
     }
 

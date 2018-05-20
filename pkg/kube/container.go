@@ -13,8 +13,8 @@ type DebuggerInfo struct {
 var debuggers map[string]*DebuggerInfo
 var debuggerServer map[string]*DebuggerInfo
 
-const DebuggerPort = "123"
-const OutPort = "123"
+const DebuggerPort = "1235"
+const OutPort = "1236"
 const ListenHost = "127.0.0.1"
 
 func init() {
