@@ -74,9 +74,10 @@ func StartDebugContainer(config SquashConfig) error {
 		return err
 	}
 	ns, podname, image := config.Namespace, config.Pod, config.Container
-
-	if !config.NoDetectSkaffold {
-		image, podname, _ = SkaffoldConfigToPod(skaffoldFile)
+	if podname == "" && image == "" {
+		if !config.NoDetectSkaffold {
+			image, podname, _ = SkaffoldConfigToPod(skaffoldFile)
+		}
 	}
 
 	dbg, err := dp.GetMissing(ns, podname, image)
@@ -303,7 +304,6 @@ func (dp *DebugPrepare) GetMissing(ns, podname, image string) (*Debugee, error) 
 			return nil, errors.Wrap(err, "choosing container")
 		}
 	} else {
-
 		for _, podContainer := range debuggee.Pod.Spec.Containers {
 			if strings.HasPrefix(podContainer.Image, image) {
 				debuggee.Container = &podContainer
@@ -314,7 +314,6 @@ func (dp *DebugPrepare) GetMissing(ns, podname, image string) (*Debugee, error) 
 			return nil, errors.New("no such container image")
 		}
 	}
-
 	return &debuggee, nil
 }
 
