@@ -132,6 +132,7 @@ class SquashExtention {
         // port forward
         let localport = await kubectl_portforward(pa);
 
+        let localpath = workspace.uri.fsPath;
         // start debugging!
         let debuggerconfig : vscode.DebugConfiguration =  {
             type: "go",
@@ -140,7 +141,7 @@ class SquashExtention {
             mode: "remote",
             port: localport,
             host: "127.0.0.1",
-        //    program: localpath,
+            program: localpath,
         //    remotePath: remotepath,
         //    stopOnEntry: true,
             env: {},
