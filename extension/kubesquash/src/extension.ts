@@ -120,7 +120,7 @@ class SquashExtention {
 
         // now invoke kubesquash
         let stdout = await exec(`kubesquash -machine -debug-server -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
-        let squashPodRegex = /pod.name:\s+(\d+)\s*$/g;
+        let squashPodRegex = /pod.name:\s+(\S+)\s*$/g;
         let match = squashPodRegex.exec(stdout);
         if (match == null) {
             throw new Error("can't parse output of kubesquash");
