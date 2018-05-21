@@ -5,10 +5,6 @@
 <h4 align="center">Debug your application running on Kubernetes</h4>
 <BR>
 
-
-## What is it?
-
-
 KubeSquash is a tool for live debugging of microservices running on Kubernetes.
 By attaching modern debuggers to your microservices application, KubeSquash gives you the full strength of live debugging : getting/setting the value of variables, adding pauses and sleeps in certain portions of the code, forcing the execution of specific code paths, etc.
 
@@ -23,15 +19,15 @@ Right now KubeSquash supports debugging using either gdb or dlv.
 - Kubernetes 1.10+ cluster with ability to run privileged containers (such as `minikube`).
 - `kubectl` configured to your cluster.
 
-# Road map
+### Road map
 - More debuggers (python, java..)
 - Enhanced Skaffold integration (autodetect more settings)
 
-# To Use
+## To Use
 Download KubeSquash from [here](https://github.com/solo-io/kubesquash/releases), and simply run it.
 The first time it runs takes longer, as it needs to download a container containing the debugger.
 
-# How to Build
+## How to Build
 
 Build binary and container:
 ```
