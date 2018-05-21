@@ -19,10 +19,6 @@ Right now KubeSquash supports debugging using either gdb or dlv.
 - Kubernetes 1.10+ cluster with ability to run privileged containers (such as `minikube`).
 - `kubectl` configured to your cluster.
 
-### Road map
-- More debuggers (python, java..)
-- Enhanced Skaffold integration (autodetect more settings)
-
 ## To Use
 Download KubeSquash from [here](https://github.com/solo-io/kubesquash/releases), and simply run it.
 The first time it runs takes longer, as it needs to download a container containing the debugger.
@@ -38,3 +34,7 @@ Push containers to docker hub:
 ```
 make DOCKER_REPO=your-docker-repo push-containers
 ```
+## Road map
+- More debuggers (python, java..)
+- Enhanced Skaffold integration (autodetect more settings)
+
