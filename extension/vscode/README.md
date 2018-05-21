@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img src="https://i.imgur.com/zQFbeXi.pn" alt="squash" width="285" height="248">
+    <img src="images/KubeSquash.png" alt="KubeSquash" width="285" height="248">
  </h1>
 
 <h4 align="center">Debug your Kubernetes application from VS Code.</h4>
