@@ -2,7 +2,7 @@
   "name": "kubesquash",
   "displayName": "KubeSquash",
   "description": "Debug your applications running on Kubernetes",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "publisher": "ilevine",
   "author": {
     "name": "solo.io",
