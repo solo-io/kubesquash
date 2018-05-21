@@ -1,7 +1,7 @@
 {
   "name": "kubesquash",
-  "displayName": "kubesquash",
-  "description": "Debug you micro-service with kubesquash",
+  "displayName": "KubeSquash",
+  "description": "Debug your applications running on Kubernetes",
   "version": "0.0.1",
   "publisher": "ilevine",
   "author": {
