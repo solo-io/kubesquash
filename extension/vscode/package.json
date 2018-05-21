@@ -2,14 +2,14 @@
   "name": "kubesquash",
   "displayName": "KubeSquash",
   "description": "Debug your applications running on Kubernetes",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "ilevine",
   "author": {
     "name": "solo.io",
     "email": "idit.levine@solo.io",
     "url": "https://www.solo.io"
   },
-  "homepage": "https://github.com/solo-io/kubesquash/blob/master/README.md",
+  "homepage": "https://github.com/solo-io/kubesquash/tree/master/extension/vscode",
   "bugs": {
     "url": "https://github.com/solo-io/kubesquash/issues"
   },
