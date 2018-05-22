@@ -16,7 +16,6 @@ You can use KubeSquash  from the command line, or use  Visual Studio Code as its
 Right now KubeSquash supports debugging using either gdb or dlv. 
 
 To learn more about the motivation behind project KubeSquash, read our blog [post](https://medium.com/@idit.levine_92620/introducing-kubesquash-remotely-debug-your-kubernetes-pods-f3e3391eaf16) or [watch](https://www.infoq.com/presentations/squash-microservices-container) session ([slides](https://www.slideshare.net/IditLevine/debugging-microservices-qcon-2017)). 
-
 To stay up-to-date with KubeSquash, follow us [@GetSoloIO](https://twitter.com/GetSoloIO) and join us on our [slack channel](http://slack.solo.io).
 
 
