@@ -49,6 +49,16 @@
   ],
   "main": "./out/extension",
   "contributes": {
+    "configuration": {
+      "title": "Kube squash config",
+      "properties": {
+        "kubesquash.path": {
+          "type": "string",
+          "default": null,
+          "description": "path to kubesquash; downloaded from github if null"
+        }
+      }
+    },
     "commands": [
       {
         "command": "extension.debugPod",
@@ -64,7 +74,8 @@
     "test": "npm run compile && node ./node_modules/vscode/bin/test"
   },
   "dependencies": {
-    "shelljs": "^0.7.8"
+    "shelljs": "^0.7.8",
+    "download": "^7.0.0"
   },
   "devDependencies": {
     "@types/mocha": "^2.2.42",

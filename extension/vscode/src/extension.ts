@@ -3,18 +3,24 @@
 import * as kube from './kube-interfaces';
 import * as shelljs from 'shelljs';
 
+import * as fs from 'fs';
+import * as http from 'http';
+import * as path from 'path';
+import * as download from 'download';
+import * as crypto from 'crypto';
 
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
+
 const OutPort = 1236
 
+const confname = "kubesquash";
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "kubesquash" is now active!');
@@ -24,24 +30,73 @@ export function activate(context: vscode.ExtensionContext) {
     // The command has been defined in the package.json file
     // Now provide the implementation of the command with  registerCommand
     // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.debugPod', async () => {
+    let disposable = vscode.commands.registerCommand('extension.debugPod', () => {
         // The code you place here will be executed every time your command is executed
-        try {
-            await se.debug();
-        } catch (err) {
-            if (err.message) {
-                vscode.window.showErrorMessage(err.message);
-            } else {
-                vscode.window.showErrorMessage("Unknown error has occurred");
-            }
-        }
+            return se.debug().catch(handleError);
     });
 
     context.subscriptions.push(disposable);
+
 }
+
+async function getremote(extPath : string) {
+    let pathforbin = path.join(extPath,"binaries", version);
+    let execpath = path.join(pathforbin, "kubsquash");
+
+    let ks = getKubeSquash();
+
+    if (!fs.existsSync(execpath)) {
+        shelljs.mkdir('-p', pathforbin);
+        let s = await vscode.window.showInformationMessage("Download kubesquash?", "yes", "no");
+        if (s==="yes") {
+            await download2file(ks.link, execpath);
+            vscode.window.showInformationMessage("download kubesquash complete");
+        }
+    }
+    let exechash = await hash(execpath);
+    // make sure its the one we expect:
+    if (exechash !== ks.checksum) {
+        throw new Error("bad checksum!");
+    }
+    fs.chmodSync(execpath, 0o755);
+}
+
+function hash(f : string) : Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        const input = fs.createReadStream(f);
+        const hash = crypto.createHash('sha256');
+
+        input.on('data', function (data : Buffer) {
+            hash.update(data);
+        });
+        input.on('error', reject);
+        input.on('end', () => {
+            resolve(hash.digest("hex"));
+        });
+
+    });
+}
+
+function download2file(what : string, to : string) : Promise<any> {
+
+    return new Promise<any>((resolve, reject) => {
+        let file = fs.createWriteStream(to);
+        let stream = download(what);
+        stream.pipe(file);
+        file.on('close', resolve);
+        file.on("finish", function() {
+            file.close();
+        });
+        stream.on('error', reject);
+        file.on('error', reject);   
+
+    });
+}
+
 
 // this method is called when your extension is deactivated
 export function deactivate() {
+    
 }
 
 export class PodPickItem implements vscode.QuickPickItem {
@@ -71,6 +126,11 @@ class SquashExtention {
         /*
             run the squashkube binary with -server
         */
+
+       let config = vscode.workspace.getConfiguration(confname);
+       if (!config.get("path")) {
+           await getremote(this.context.extensionPath).catch(handleError);
+       }
 
         if (!vscode.workspace.workspaceFolders) {
             throw new Error("no workspace folders");
@@ -271,12 +331,52 @@ async function exec(cmd:string): Promise<string> {
 
     return promise;
 }
+const handleError = (err : Error) => {
+    if (err) {
+        if (err.message) {
+            vscode.window.showErrorMessage(err.message);
+        } else {
+            vscode.window.showErrorMessage("Unknown error has occurred");
+        }
+    }
+};
 
 function get_conf_or(k : string, d : any) : any {
-    let config = vscode.workspace.getConfiguration('vs-squash');
+    let config = vscode.workspace.getConfiguration(confname);
     let v = config[k];
     if (!v) {
         return d;
     }
     return v;
+}
+
+const version = "v0.1.3";
+const baseName = "kubesquash";
+const binaries = {
+    "linux": createKubesquashBinary("linux", "0a7a31bf250954fcc38061ac749efd928d31e6dbc720c02f167ded8caf81c171"),
+    "darwin": createKubesquashBinary("osx", "f8b4621d10f89b906063a8aea7a4c37ff375f2a57c25378d67cb405855c057d8")
+};
+
+interface KubesquashBinary {
+    link: string;
+    checksum: string;
+}
+
+function createKubesquashBinary(os : string, checksum : string) : KubesquashBinary {
+    return {
+        link : "https://github.com/solo-io/kubesquash/releases/download/" + version + "/" + baseName + os,
+        checksum : checksum
+    };
+}
+
+function getKubeSquash() : KubesquashBinary {
+    // download the squash version for this extension
+    var osver = process.platform;
+    switch (osver) {
+    case 'linux': 
+    case 'darwin':
+        return binaries[osver];
+    default:
+        throw new Error(osver + " is current unsupported");
+    }
 }
