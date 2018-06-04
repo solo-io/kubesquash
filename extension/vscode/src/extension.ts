@@ -12,7 +12,6 @@ import * as crypto from 'crypto';
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-
 const OutPort = 1236;
 
 const confname = "kubesquash";
@@ -31,15 +30,15 @@ export function activate(context: vscode.ExtensionContext) {
     // The commandId parameter must match the command field in package.json
     let disposable = vscode.commands.registerCommand('extension.debugPod', () => {
         // The code you place here will be executed every time your command is executed
-            return se.debug().catch(handleError);
+        return se.debug().catch(handleError);
     });
 
     context.subscriptions.push(disposable);
 
 }
 
-async function getremote(extPath : string) {
-    let pathforbin = path.join(extPath,"binaries", version);
+async function getremote(extPath: string) {
+    let pathforbin = path.join(extPath, "binaries", version);
     let execpath = path.join(pathforbin, "kubsquash");
 
     let ks = getKubeSquash();
@@ -47,7 +46,7 @@ async function getremote(extPath : string) {
     if (!fs.existsSync(execpath)) {
         shelljs.mkdir('-p', pathforbin);
         let s = await vscode.window.showInformationMessage("Download kubesquash?", "yes", "no");
-        if (s==="yes") {
+        if (s === "yes") {
             await download2file(ks.link, execpath);
             vscode.window.showInformationMessage("download kubesquash complete");
         }
@@ -60,12 +59,12 @@ async function getremote(extPath : string) {
     fs.chmodSync(execpath, 0o755);
 }
 
-function hash(f : string) : Promise<string> {
+function hash(f: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         const input = fs.createReadStream(f);
         const hash = crypto.createHash('sha256');
 
-        input.on('data', function (data : Buffer) {
+        input.on('data', function (data: Buffer) {
             hash.update(data);
         });
         input.on('error', reject);
@@ -76,18 +75,18 @@ function hash(f : string) : Promise<string> {
     });
 }
 
-function download2file(what : string, to : string) : Promise<any> {
+function download2file(what: string, to: string): Promise<any> {
 
     return new Promise<any>((resolve, reject) => {
         let file = fs.createWriteStream(to);
         let stream = download(what);
         stream.pipe(file);
         file.on('close', resolve);
-        file.on("finish", function() {
+        file.on("finish", function () {
             file.close();
         });
         stream.on('error', reject);
-        file.on('error', reject);   
+        file.on('error', reject);
 
     });
 }
@@ -95,7 +94,7 @@ function download2file(what : string, to : string) : Promise<any> {
 
 // this method is called when your extension is deactivated
 export function deactivate() {
-    
+
 }
 
 export class PodPickItem implements vscode.QuickPickItem {
@@ -126,17 +125,17 @@ class SquashExtention {
             run the squashkube binary with -server
         */
 
-       let config = vscode.workspace.getConfiguration(confname);
-       if (!config.get("path")) {
-           await getremote(this.context.extensionPath).catch(handleError);
-       }
+        let config = vscode.workspace.getConfiguration(confname);
+        if (!config.get("path")) {
+            await getremote(this.context.extensionPath).catch(handleError);
+        }
 
         if (!vscode.workspace.workspaceFolders) {
             throw new Error("no workspace folders");
 
         }
 
-        let workspace : vscode.WorkspaceFolder;
+        let workspace: vscode.WorkspaceFolder;
         if (vscode.workspace.workspaceFolders.length === 0) {
             throw new Error("Can't start debugging without a project open");
         } else if (vscode.workspace.workspaceFolders.length === 1) {
@@ -146,7 +145,7 @@ class SquashExtention {
                 placeHolder: "Please a project to debug",
             };
             let wfItems = vscode.workspace.workspaceFolders.map(
-                wf =>new WorkspaceFolderPickItem(wf));
+                wf => new WorkspaceFolderPickItem(wf));
 
             const item = await vscode.window.showQuickPick(wfItems, wfoptions);
 
@@ -161,9 +160,9 @@ class SquashExtention {
         /*
            get namespace and pod
         */
-       let pods = await this.getPods();
+        let pods = await this.getPods();
 
-       let podoptions: vscode.QuickPickOptions = {
+        let podoptions: vscode.QuickPickOptions = {
             placeHolder: "Please select a pod",
         };
 
@@ -193,7 +192,7 @@ class SquashExtention {
 
         let localpath = workspace.uri.fsPath;
         // start debugging!
-        let debuggerconfig : vscode.DebugConfiguration =  {
+        let debuggerconfig: vscode.DebugConfiguration = {
             type: "go",
             name: "Remote",
             request: "launch",
@@ -201,8 +200,8 @@ class SquashExtention {
             port: localport,
             host: "127.0.0.1",
             program: localpath,
-        //    remotePath: remotepath,
-        //    stopOnEntry: true,
+            //    remotePath: remotepath,
+            //    stopOnEntry: true,
             env: {},
             args: [],
             showLog: true,
@@ -223,7 +222,6 @@ class SquashExtention {
 
 }
 
-
 export class WorkspaceFolderPickItem implements vscode.QuickPickItem {
     label: string;
     description: string;
@@ -237,13 +235,12 @@ export class WorkspaceFolderPickItem implements vscode.QuickPickItem {
     }
 }
 
-
 export class PodAddress {
-    podName : string;
-    podNamespace : string;
+    podName: string;
+    podNamespace: string;
     port: number;
 
-    constructor(podNamespace : string, podName :string, port : number) {
+    constructor(podNamespace: string, podName: string, port: number) {
         this.podNamespace = podNamespace;
         this.podName = podName;
         this.port = port;
@@ -256,7 +253,7 @@ function kubectl_portforward(remote: PodAddress): Promise<number> {
     console.log("Executing: " + cmd);
     let p = new Promise<number>((resolve, reject) => {
         let resolved = false;
-        let handler = function (code : number, stdout : string, stderr : string) {
+        let handler = function (code: number, stdout: string, stderr: string) {
             if (resolved !== true) {
                 if (code !== 0) {
                     reject(new ExecError(code, stdout, stderr));
@@ -287,8 +284,7 @@ function kubectl_get<T=any>(cmd: string, ...args: string[]): Promise<T> {
     return kubectl("get -o json " + cmd + " " + args.join(" ")).then(JSON.parse);
 }
 
-
-function kubectl(cmd:string): Promise<string> {
+function kubectl(cmd: string): Promise<string> {
     return exec(get_conf_or("kubectl-path", "kubectl") + " " + cmd);
 }
 
@@ -299,7 +295,7 @@ class ExecError extends Error {
     stdout: string;
 
     constructor(code: number, stdout: string, stderr: string) {
-        super((stdout+stderr).trim());
+        super((stdout + stderr).trim());
 
         // Set the prototype explicitly.
         Object.setPrototypeOf(this, ExecError.prototype);
@@ -310,7 +306,7 @@ class ExecError extends Error {
     }
 }
 
-async function exec(cmd:string): Promise<string> {
+async function exec(cmd: string): Promise<string> {
     console.log("Executing: " + cmd);
     let promise = new Promise<string>((resolve, reject) => {
         let handler = function (code: number, stdout: string, stderr: string) {
@@ -322,15 +318,16 @@ async function exec(cmd:string): Promise<string> {
         };
 
         let options = {
-         async: true,
-         stdio: ['ignore', 'pipe', 'pipe'],
+            async: true,
+            stdio: ['ignore', 'pipe', 'pipe'],
         };
         shelljs.exec(cmd, options, handler);
     });
 
     return promise;
 }
-const handleError = (err : Error) => {
+
+const handleError = (err: Error) => {
     if (err) {
         if (err.message) {
             vscode.window.showErrorMessage(err.message);
@@ -340,7 +337,7 @@ const handleError = (err : Error) => {
     }
 };
 
-function get_conf_or(k : string, d : any) : any {
+function get_conf_or(k: string, d: any): any {
     let config = vscode.workspace.getConfiguration(confname);
     let v = config[k];
     if (!v) {
@@ -361,21 +358,21 @@ interface KubesquashBinary {
     checksum: string;
 }
 
-function createKubesquashBinary(os : string, checksum : string) : KubesquashBinary {
+function createKubesquashBinary(os: string, checksum: string): KubesquashBinary {
     return {
-        link : "https://github.com/solo-io/kubesquash/releases/download/" + version + "/" + baseName + os,
-        checksum : checksum
+        link: "https://github.com/solo-io/kubesquash/releases/download/" + version + "/" + baseName + os,
+        checksum: checksum
     };
 }
 
-function getKubeSquash() : KubesquashBinary {
+function getKubeSquash(): KubesquashBinary {
     // download the squash version for this extension
     var osver = process.platform;
     switch (osver) {
-    case 'linux': 
-    case 'darwin':
-        return binaries[osver];
-    default:
-        throw new Error(osver + " is current unsupported");
+        case 'linux':
+        case 'darwin':
+            return binaries[osver];
+        default:
+            throw new Error(osver + " is current unsupported");
     }
 }
