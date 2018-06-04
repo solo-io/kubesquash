@@ -127,12 +127,11 @@ class SquashExtention {
 
         let config = vscode.workspace.getConfiguration(confname);
         if (!config.get("path")) {
-            await getremote(this.context.extensionPath).catch(handleError);
+            await getremote(this.context.extensionPath);
         }
 
         if (!vscode.workspace.workspaceFolders) {
             throw new Error("no workspace folders");
-
         }
 
         let workspace: vscode.WorkspaceFolder;
@@ -360,7 +359,7 @@ interface KubesquashBinary {
 
 function createKubesquashBinary(os: string, checksum: string): KubesquashBinary {
     return {
-        link: "https://github.com/solo-io/kubesquash/releases/download/" + version + "/" + baseName + os,
+        link: "https://github.com/solo-io/kubesquash/releases/download/" + version + "/" + baseName + "-" + os,
         checksum: checksum
     };
 }
