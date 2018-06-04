@@ -4,7 +4,6 @@ import * as kube from './kube-interfaces';
 import * as shelljs from 'shelljs';
 
 import * as fs from 'fs';
-import * as http from 'http';
 import * as path from 'path';
 import * as download from 'download';
 import * as crypto from 'crypto';
@@ -14,7 +13,7 @@ import * as crypto from 'crypto';
 import * as vscode from 'vscode';
 
 
-const OutPort = 1236
+const OutPort = 1236;
 
 const confname = "kubesquash";
 
@@ -138,9 +137,9 @@ class SquashExtention {
         }
 
         let workspace : vscode.WorkspaceFolder;
-        if (vscode.workspace.workspaceFolders.length == 0) {
+        if (vscode.workspace.workspaceFolders.length === 0) {
             throw new Error("Can't start debugging without a project open");
-        } else if (vscode.workspace.workspaceFolders.length == 1) {
+        } else if (vscode.workspace.workspaceFolders.length === 1) {
             workspace = vscode.workspace.workspaceFolders[0];
         } else {
             let wfoptions: vscode.QuickPickOptions = {
@@ -182,7 +181,7 @@ class SquashExtention {
         let stdout = await exec(`kubesquash -machine -debug-server -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
         let squashPodRegex = /pod.name:\s+(\S+)\s*$/g;
         let match = squashPodRegex.exec(stdout);
-        if (match == null) {
+        if (match === null) {
             throw new Error("can't parse output of kubesquash");
         }
         // get created pod name
@@ -258,14 +257,14 @@ function kubectl_portforward(remote: PodAddress): Promise<number> {
     let p = new Promise<number>((resolve, reject) => {
         let resolved = false;
         let handler = function (code : number, stdout : string, stderr : string) {
-            if (resolved != true) {
+            if (resolved !== true) {
                 if (code !== 0) {
                     reject(new ExecError(code, stdout, stderr));
                 } else {
                     reject(new Error("Didn't receive port"));
                 }
             } else {
-                console.log(`port forward ended unexpectly: ${code} ${stdout} ${stderr} `)
+                console.log(`port forward ended unexpectly: ${code} ${stdout} ${stderr} `);
             }
         };
         let child = shelljs.exec(cmd, handler);
@@ -274,9 +273,9 @@ function kubectl_portforward(remote: PodAddress): Promise<number> {
             stdout += data;
             let portRegexp = /from\s+.+:(\d+)\s+->/g;
             let match = portRegexp.exec(stdout);
-            if (match != null) {
+            if (match !== null) {
                 resolved = true;
-                resolve(parseInt(match[1]))
+                resolve(parseInt(match[1]));
             }
         });
     });
