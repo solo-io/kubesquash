@@ -55,7 +55,7 @@
         "kubesquash.path": {
           "type": "string",
           "default": null,
-          "description": "path to kubesquash; downloaded from github if null"
+          "description": "path to kubesquash. This is mainly used for development. By default, the correct binary will be downloaded automatically."
         }
       }
     },
