@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -60,7 +61,12 @@ func StartDebugContainer(config SquashConfig) error {
 	if err != nil {
 		return err
 	}
-	minoirver, err := strconv.Atoi(si.Minor)
+	reg, err := regexp.Compile("[^0-9]+")
+	if err != nil {
+		return err
+	}
+	minorVersion := reg.ReplaceAllString(si.Minor, "")
+	minoirver, err := strconv.Atoi(minorVersion)
 	if err != nil {
 		fmt.Println("NOTE: can't detect kubernetes version.")
 		return err
