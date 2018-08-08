@@ -48,6 +48,8 @@ type SquashConfig struct {
 	Pod       string
 	Container string
 	Machine   bool
+
+	CRISock string
 }
 
 func StartDebugContainer(config SquashConfig) error {
@@ -520,7 +522,7 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 				Name: crisockvolume,
 				VolumeSource: v1.VolumeSource{
 					HostPath: &v1.HostPathVolumeSource{
-						Path: "/var/run/dockershim.sock",
+						Path: dp.config.CRISock,
 					},
 				},
 			}},

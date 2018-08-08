@@ -36,6 +36,7 @@ func main() {
 	flag.StringVar(&cfg.Namespace, "namespace", "", "Namespace to debug")
 	flag.StringVar(&cfg.Pod, "pod", "", "Pod to debug")
 	flag.StringVar(&cfg.Container, "container", "", "Container to debug")
+	flag.StringVar(&cfg.CRISock, "crisock", "/var/run/dockershim.sock", "The path to the CRI socket")
 
 	flag.Parse()
 
