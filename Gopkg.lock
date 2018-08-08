@@ -329,7 +329,7 @@
     "pkg/server",
     "pkg/utils/processwatcher"
   ]
-  revision = "289b241316c47c2bb35cee8603fbe8f1f6988aca"
+  revision = "5c45402b79b97084c523c419c3e754a46a88dee2"
 
 [[projects]]
   name = "github.com/spf13/afero"
