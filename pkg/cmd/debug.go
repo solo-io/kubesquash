@@ -22,6 +22,8 @@ import (
 	survey "gopkg.in/AlecAivazis/survey.v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
+
+	squashkube "github.com/solo-io/squash/pkg/platforms/kubernetes"
 )
 
 var ImageVersion string
@@ -498,7 +500,7 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 				TTY:       true,
 				VolumeMounts: []v1.VolumeMount{{
 					Name:      crisockvolume,
-					MountPath: "/var/run/cri.sock",
+					MountPath: squashkube.CriRuntime,
 				}},
 				SecurityContext: &v1.SecurityContext{
 					Privileged: &trueVar,
