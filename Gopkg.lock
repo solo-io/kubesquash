@@ -311,6 +311,7 @@
     "pkg/models",
     "pkg/platforms",
     "pkg/platforms/kubernetes",
+    "pkg/platforms/kubernetes/alphav1",
     "pkg/platforms/kubernetes/crd",
     "pkg/platforms/kubernetes/crd/apis/squash",
     "pkg/platforms/kubernetes/crd/apis/squash/v1",
@@ -328,7 +329,7 @@
     "pkg/server",
     "pkg/utils/processwatcher"
   ]
-  revision = "f16c0bcc1651aa464893b145d9009ac3f92b1532"
+  revision = "289b241316c47c2bb35cee8603fbe8f1f6988aca"
 
 [[projects]]
   name = "github.com/spf13/afero"
@@ -689,6 +690,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9294f36c697d9eb6792f0759859441ee261129a6d77ba7ec58687a958a9e5a69"
+  inputs-digest = "e80288aabe33e89418bd7415eda43a7dff18ba79d792b70f66927e32b2bbf060"
   solver-name = "gps-cdcl"
   solver-version = 1
