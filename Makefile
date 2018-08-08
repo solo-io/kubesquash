@@ -1,11 +1,17 @@
 .PHONY: all
 all: binaries containers
 
-.PHONY: binaries
-binaries:target/kubesquash-container/kubesquash-container target/kubesquash
+DOCKER_REPO ?= soloio
+VERSION ?= $(shell git describe --tags)
 
-.PHONY: all-binaries
-all-binaries: target/kubesquash-linux target/kubesquash-osx
+.PHONY: binaries
+binaries: target/kubesquash-container/kubesquash-container target/kubesquash
+
+
+RELEASE_BINARIES := target/kubesquash-linux target/kubesquash-osx 
+
+.PHONY: release-binaries
+release-binaries: $(RELEASE_BINARIES)
 
 .PHONY: containers
 containers: target/kubesquash-container-dlv-container target/kubesquash-container-gdb-container 
@@ -13,9 +19,13 @@ containers: target/kubesquash-container-dlv-container target/kubesquash-containe
 .PHONY: push-containers
 push-containers: target/kubesquash-container-dlv-pushed target/kubesquash-container-gdb-pushed
 
-DOCKER_REPO ?= soloio
-VERSION ?= $(shell git describe --tags)
+.PHONY: release
+release: push-containers release-binaries
 
+.PHONY: upload-release
+upload-release: release
+	./hack/github-release.sh github_api_token=$(GITHUB_TOKEN) owner=solo-io repo=kubesquash tag=$(VERSION)
+	@$(foreach BINARY,$(RELEASE_BINARIES),./hack/upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=solo-io repo=kubesquash tag=$(VERSION) filename=$(BINARY);)
 
 SRCS=$(shell find ./pkg -name "*.go") $(shell find ./cmd -name "*.go")
 
