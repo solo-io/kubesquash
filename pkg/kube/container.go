@@ -1,9 +1,11 @@
 package kube
 
 import (
+	"context"
 	"fmt"
 
-	squashkube "github.com/solo-io/squash/pkg/platforms/kubernetes"
+	"github.com/solo-io/squash/pkg/platforms"
+	"github.com/solo-io/squash/pkg/platforms/kubernetes"
 )
 
 type DebuggerInfo struct {
@@ -35,8 +37,18 @@ func init() {
 func Debug() error {
 	cfg := GetConfig()
 
-	containerProcess := squashkube.NewContainerProcess()
-	info, err := containerProcess.GetContainerInfoKube(nil, &cfg.Attachment)
+	var err error
+	var containerProcess platforms.ContainerProcess
+
+	containerProcess, err = kubernetes.NewContainerProcess()
+	if err != nil {
+		containerProcess, err = kubernetes.NewCRIContainerProcessAlphaV1()
+		if err != nil {
+			return err
+		}
+	}
+
+	info, err := containerProcess.GetContainerInfo(context.TODO(), &cfg.Attachment)
 	if err != nil {
 		return err
 	}
@@ -45,7 +57,6 @@ func Debug() error {
 
 	if cfg.Server {
 		return startServer(cfg, pid)
-
 	} else {
 		return startInteractive(cfg, pid)
 	}
