@@ -114,6 +114,7 @@ func StartDebugContainer(config SquashConfig) error {
 	err = <-dp.waitForPod(ctx, createdPod)
 	cancel()
 	if err != nil {
+		dp.showLogsAndDelete(err, createdPod)
 		return err
 	}
 
@@ -122,17 +123,34 @@ func StartDebugContainer(config SquashConfig) error {
 		fmt.Printf("pod.name: %v", createdPod.Name)
 	} else {
 		// attach to the created
-		cmd := exec.Command("kubectl", "attach", "-n", namespace, "-i", "-t", createdPod.ObjectMeta.Name, "-c", "kubesquash-container")
+		cmd := exec.Command("kubectl", "-n", namespace, "attach", "-i", "-t", createdPod.ObjectMeta.Name, "-c", "kubesquash-container")
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Stdin = os.Stdin
 
 		err = cmd.Run()
 		if err != nil {
+			dp.showLogsAndDelete(err, createdPod)
 			return err
 		}
 	}
 	return nil
+}
+
+func (dp *DebugPrepare) showLogsAndDelete(err error, createdPod *v1.Pod) {
+	defer func() {
+		var options metav1.DeleteOptions
+		dp.getClientSet().CoreV1().Pods(namespace).Delete(createdPod.ObjectMeta.Name, &options)
+	}()
+
+	cmd := exec.Command("kubectl", "-n", namespace, "logs", createdPod.ObjectMeta.Name, "kubesquash-container")
+	buf, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("Can't get logs from errored pod")
+		return
+	}
+
+	fmt.Printf("Pod errored with: %v\n Logs:\n %s", err, string(buf))
 }
 
 func (dp *DebugPrepare) waitForPod(ctx context.Context, createdPod *v1.Pod) <-chan error {
