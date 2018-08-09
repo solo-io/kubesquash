@@ -99,7 +99,7 @@ func StartDebugContainer(config SquashConfig) error {
 		return err
 	}
 
-	// wait for runnign state
+	// wait for running state
 	name := createdPod.ObjectMeta.Name
 	if (!dp.config.DebugServer) && (!config.NoClean) {
 		// do not remove the pod on a debug server as it is waiting for a
@@ -123,7 +123,6 @@ func StartDebugContainer(config SquashConfig) error {
 	} else {
 		// attach to the created
 		cmd := exec.Command("kubectl", "attach", "-n", namespace, "-i", "-t", createdPod.ObjectMeta.Name, "-c", "kubesquash-container")
-
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Stdin = os.Stdin
@@ -455,9 +454,9 @@ func (dp *DebugPrepare) choosePod(ns, image string) (*v1.Pod, error) {
 func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername string) (*v1.Pod, error) {
 	trueVar := true
 	const crisockvolume = "crisock"
-	one := ""
+	isDebugServer := ""
 	if dp.config.DebugServer {
-		one = "1"
+		isDebugServer = "1"
 	}
 	templatePod := &v1.Pod{
 		TypeMeta: metav1.TypeMeta{
@@ -496,7 +495,7 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 					Value: containername,
 				}, {
 					Name:  "DEBUGGER_SERVER",
-					Value: fmt.Sprintf("%s", one),
+					Value: fmt.Sprintf("%s", isDebugServer),
 				},
 				}},
 			},

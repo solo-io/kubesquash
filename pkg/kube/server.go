@@ -11,6 +11,7 @@ import (
 )
 
 func startServer(cfg Config, pid int) error {
+	// we proxy so we can exit the debugger when disconnection occours
 
 	dbgInfo := debuggerServer[cfg.Debugger]
 	if dbgInfo == nil {
@@ -59,7 +60,7 @@ func startServer(cfg Config, pid int) error {
 }
 
 func startDebuggerServer(cfg Config, pid int, dbgInfo *DebuggerInfo) (*exec.Cmd, error) {
-
+	// TODO: use squash's interfaces for a debug server
 	cmd := exec.Command("dlv", dbgInfo.CmdlineGen(pid)...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
