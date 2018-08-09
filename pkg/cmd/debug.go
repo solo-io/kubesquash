@@ -6,8 +6,6 @@ import (
 	"io"
 	"os"
 	"os/exec"
-	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -59,24 +57,6 @@ func StartDebugContainer(config SquashConfig) error {
 
 	dp := DebugPrepare{
 		config: config,
-	}
-
-	si, err := dp.getClientSet().Discovery().ServerVersion()
-	if err != nil {
-		return err
-	}
-	reg, err := regexp.Compile("[^0-9]+")
-	if err != nil {
-		return err
-	}
-	minorVersion := reg.ReplaceAllString(si.Minor, "")
-	minoirver, err := strconv.Atoi(minorVersion)
-	if err != nil {
-		fmt.Println("NOTE: can't detect kubernetes version.")
-		return err
-	}
-	if minoirver < 10 {
-		return fmt.Errorf("squash lite requires kube 1.10 or higher. your version is %s.%s;", si.Major, si.Minor)
 	}
 
 	debugger, err := dp.chooseDebugger()
