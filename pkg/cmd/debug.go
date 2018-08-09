@@ -29,6 +29,7 @@ var ImageRepo string
 
 const (
 	ImageContainer = "kubesquash-container"
+	ContainerName  = "kubesquash-container"
 	namespace      = "squash"
 	skaffoldFile   = "skaffold.yaml"
 )
@@ -123,7 +124,7 @@ func StartDebugContainer(config SquashConfig) error {
 		fmt.Printf("pod.name: %v", createdPod.Name)
 	} else {
 		// attach to the created
-		cmd := exec.Command("kubectl", "-n", namespace, "attach", "-i", "-t", createdPod.ObjectMeta.Name, "-c", "kubesquash-container")
+		cmd := exec.Command("kubectl", "-n", namespace, "attach", "-i", "-t", createdPod.ObjectMeta.Name, "-c", ContainerName)
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		cmd.Stdin = os.Stdin
@@ -143,7 +144,7 @@ func (dp *DebugPrepare) deletePod(createdPod *v1.Pod) {
 }
 func (dp *DebugPrepare) showLogs(err error, createdPod *v1.Pod) {
 
-	cmd := exec.Command("kubectl", "-n", namespace, "logs", createdPod.ObjectMeta.Name, "kubesquash-container")
+	cmd := exec.Command("kubectl", "-n", namespace, "logs", createdPod.ObjectMeta.Name, ContainerName)
 	buf, err := cmd.CombinedOutput()
 	if err != nil {
 		fmt.Println("Can't get logs from errored pod")
@@ -482,7 +483,7 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: "kubesquash-container",
+			GenerateName: ContainerName,
 			Labels:       map[string]string{"squash": "kubesquash-container"},
 		},
 		Spec: v1.PodSpec{
@@ -490,7 +491,7 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 			RestartPolicy: v1.RestartPolicyNever,
 			NodeName:      in.Spec.NodeName,
 			Containers: []v1.Container{{
-				Name:      "kubesquash-container",
+				Name:      ContainerName,
 				Image:     dp.config.DebugContainerRepo + "/" + ImageContainer + "-" + debugger + ":" + dp.config.DebugContainerVersion,
 				Stdin:     true,
 				StdinOnce: true,
