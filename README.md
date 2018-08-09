@@ -20,7 +20,7 @@ To stay up-to-date with KubeSquash, follow us [@GetSoloIO](https://twitter.com/G
 
 
 ## Prerequisites
-- Kubernetes 1.10+ cluster with ability to run privileged containers (such as `minikube`).
+- Kubernetes cluster with ability to run privileged containers (such as `minikube`).
 - `kubectl` configured to your cluster.
 
 ## To Use
