@@ -99,26 +99,26 @@ func StartDebugContainer(config SquashConfig) error {
 		return err
 	}
 
-	// wait for running state
-	name := createdPod.ObjectMeta.Name
+	// TODO: we may be able to delete with DebugServer. see TODO below
 	if (!dp.config.DebugServer) && (!config.NoClean) {
 		// do not remove the pod on a debug server as it is waiting for a
 		// connection
-		defer func() {
-			var options metav1.DeleteOptions
-			dp.getClientSet().CoreV1().Pods(namespace).Delete(name, &options)
-		}()
+		defer dp.deletePod(createdPod)
 	}
 
+	// wait for running state
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(config.TimeoutSeconds)*time.Second)
 	err = <-dp.waitForPod(ctx, createdPod)
 	cancel()
 	if err != nil {
-		dp.showLogsAndDelete(err, createdPod)
+		dp.showLogs(err, createdPod)
 		return err
 	}
 
 	if dp.config.DebugServer {
+		// TODO: do we want to delete the pod on successful completion?
+		// that would require us to track the lifetime of the session
+
 		// print the pod name and exit
 		fmt.Printf("pod.name: %v", createdPod.Name)
 	} else {
@@ -130,18 +130,18 @@ func StartDebugContainer(config SquashConfig) error {
 
 		err = cmd.Run()
 		if err != nil {
-			dp.showLogsAndDelete(err, createdPod)
+			dp.showLogs(err, createdPod)
 			return err
 		}
+
 	}
 	return nil
 }
-
-func (dp *DebugPrepare) showLogsAndDelete(err error, createdPod *v1.Pod) {
-	defer func() {
-		var options metav1.DeleteOptions
-		dp.getClientSet().CoreV1().Pods(namespace).Delete(createdPod.ObjectMeta.Name, &options)
-	}()
+func (dp *DebugPrepare) deletePod(createdPod *v1.Pod) {
+	var options metav1.DeleteOptions
+	dp.getClientSet().CoreV1().Pods(namespace).Delete(createdPod.ObjectMeta.Name, &options)
+}
+func (dp *DebugPrepare) showLogs(err error, createdPod *v1.Pod) {
 
 	cmd := exec.Command("kubectl", "-n", namespace, "logs", createdPod.ObjectMeta.Name, "kubesquash-container")
 	buf, err := cmd.CombinedOutput()
