@@ -56,6 +56,16 @@
           "type": "string",
           "default": null,
           "description": "path to kubesquash. This is mainly used for development. By default, the correct binary will be downloaded automatically."
+        },
+        "kubesquash.containerRepository": {
+          "type": "string",
+          "default": null,
+          "description": "Path to squash containers, incase they are hosted in a private repository. by default uses docker hub."
+        },
+        "kubesquash.remotePath": {
+          "type": "string",
+          "default": null,
+          "description": "Path of the source files in the remote executable."
         }
       }
     },

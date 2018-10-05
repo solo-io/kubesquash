@@ -37,7 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 }
 
-async function getremote(extPath: string) {
+async function getremote(extPath: string): Promise<string> {
     let pathforbin = path.join(extPath, "binaries", version);
     let execpath = path.join(pathforbin, "kubsquash");
 
@@ -57,6 +57,7 @@ async function getremote(extPath: string) {
         throw new Error("bad checksum!");
     }
     fs.chmodSync(execpath, 0o755);
+    return execpath;
 }
 
 function hash(f: string): Promise<string> {
@@ -125,9 +126,9 @@ class SquashExtention {
             run the squashkube binary with -server
         */
 
-        let config = vscode.workspace.getConfiguration(confname);
-        if (!config.get("path")) {
-            await getremote(this.context.extensionPath);
+        let squahspath : string = get_conf_or("path", null);
+        if (!squahspath) {
+            squahspath = await getremote(this.context.extensionPath);
         }
 
         if (!vscode.workspace.workspaceFolders) {
@@ -175,8 +176,14 @@ class SquashExtention {
         }
         let selectedPod = item.pod;
 
+        let containerRepo = get_conf_or("containerRepository", null);
+        let containerRepoArg =""
+        if (containerRepo) {
+            containerRepoArg = `--container-repo ${containerRepo}`
+        }
+
         // now invoke kubesquash
-        let stdout = await exec(`kubesquash -machine -debug-server -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
+        let stdout = await exec(`${squahspath} ${containerRepoArg} -machine -debug-server -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
         let squashPodRegex = /pod.name:\s+(\S+)\s*$/g;
         let match = squashPodRegex.exec(stdout);
         if (match === null) {
@@ -185,6 +192,8 @@ class SquashExtention {
         // get created pod name
         let squashPodName = match[1];
         let pa = new PodAddress("squash", squashPodName, OutPort);
+
+        let remotepath = get_conf_or("remotePath", null);
 
         // port forward
         let localport = await kubectl_portforward(pa);
@@ -199,7 +208,7 @@ class SquashExtention {
             port: localport,
             host: "127.0.0.1",
             program: localpath,
-            //    remotePath: remotepath,
+            remotePath: remotepath,
             //    stopOnEntry: true,
             env: {},
             args: [],
