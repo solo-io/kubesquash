@@ -30,7 +30,7 @@ func init() {
 	}}
 	debuggerServer = make(map[string]*DebuggerInfo)
 	debuggerServer["dlv"] = &DebuggerInfo{CmdlineGen: func(pid int) []string {
-		return []string{"attach", fmt.Sprintf("%d", pid), "--listen=127.0.0.1:" + DebuggerPort, "--headless", "--log"}
+		return []string{"attach", fmt.Sprintf("%d", pid), "--listen=127.0.0.1:" + DebuggerPort, "--headless", "--log", "--api-version=2"}
 	}}
 }
 
