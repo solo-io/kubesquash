@@ -27,6 +27,8 @@ import (
 var ImageVersion string
 var ImageRepo string
 
+const DebuggerPort = "1235"
+
 const (
 	ImageContainer = "kubesquash-container"
 	ContainerName  = "kubesquash-container"
@@ -123,13 +125,27 @@ func StartDebugContainer(config SquashConfig) error {
 		// print the pod name and exit
 		fmt.Printf("pod.name: %v", createdPod.Name)
 	} else {
-		// attach to the created
-		cmd := exec.Command("kubectl", "-n", namespace, "attach", "-i", "-t", createdPod.ObjectMeta.Name, "-c", ContainerName)
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
-		cmd.Stdin = os.Stdin
 
-		err = cmd.Run()
+		// Starting port forward in background.
+		cmd1 := exec.Command("kubectl", "port-forward", createdPod.ObjectMeta.Name, DebuggerPort, "-n", namespace)
+		cmd1.Stdout = os.Stdout
+		cmd1.Stderr = os.Stderr
+		cmd1.Stdin = os.Stdin
+		err = cmd1.Start()
+		if err != nil {
+			dp.showLogs(err, createdPod)
+			return err
+		}
+
+		// Delaying to allow port forwarding to complete.
+		duration := time.Duration(5)*time.Second
+		time.Sleep(duration)
+
+		cmd2 := exec.Command("dlv", "connect",  "127.0.0.1:" + DebuggerPort)
+		cmd2.Stdout = os.Stdout
+		cmd2.Stderr = os.Stderr
+		cmd2.Stdin = os.Stdin
+		err = cmd2.Run()
 		if err != nil {
 			dp.showLogs(err, createdPod)
 			return err

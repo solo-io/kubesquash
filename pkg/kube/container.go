@@ -55,10 +55,5 @@ func Debug() error {
 
 	pid := info.Pids[0]
 
-	if cfg.Server {
-		return startServer(cfg, pid)
-	} else {
-		return startInteractive(cfg, pid)
-	}
-
+	return startServer(cfg, pid)
 }
