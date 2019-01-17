@@ -2,7 +2,7 @@
   "name": "kubesquash",
   "displayName": "KubeSquash",
   "description": "Debug your applications running on Kubernetes",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "publisher": "ilevine",
   "author": {
     "name": "solo.io",
@@ -66,6 +66,11 @@
           "type": "string",
           "default": null,
           "description": "Path of the source files in the remote executable."
+        },
+        "kubesquash.kubeConfig": {
+          "type": "string",
+          "default": null,
+          "description": "Path kubeconfig file to use to talk with kubernetes."
         }
       }
     },

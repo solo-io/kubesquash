@@ -183,7 +183,7 @@ class SquashExtention {
         }
 
         // now invoke kubesquash
-        let stdout = await exec(`${squahspath} ${containerRepoArg} -machine -debug-server -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
+        let stdout = await exec(maybeKubeEnv() + `${squahspath} ${containerRepoArg} -machine -debug-server -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
         let squashPodRegex = /pod.name:\s+(\S+)\s*$/g;
         let match = squashPodRegex.exec(stdout);
         if (match === null) {
@@ -257,7 +257,7 @@ export class PodAddress {
 
 function kubectl_portforward(remote: PodAddress): Promise<number> {
 
-    let cmd = get_conf_or("kubectl-path", "kubectl") + ` --namespace=${remote.podNamespace} port-forward ${remote.podName} :${remote.port}`;
+    let cmd = get_conf_or("kubectl-path", "kubectl") + maybeKubeConfig() + ` --namespace=${remote.podNamespace} port-forward ${remote.podName} :${remote.port}`;
     console.log("Executing: " + cmd);
     let p = new Promise<number>((resolve, reject) => {
         let resolved = false;
@@ -293,7 +293,29 @@ function kubectl_get<T=any>(cmd: string, ...args: string[]): Promise<T> {
 }
 
 function kubectl(cmd: string): Promise<string> {
-    return exec(get_conf_or("kubectl-path", "kubectl") + " " + cmd);
+    return exec(get_conf_or("kubectl-path", "kubectl") + maybeKubeConfig() +" " + cmd);
+}
+
+function maybeKubeConfig(): string {
+
+    let maybeKubeConfig : string = get_conf_or("kubeConfig", null);
+    if (!maybeKubeConfig) {
+        maybeKubeConfig = "";
+    } else {
+        maybeKubeConfig = ` --kubeconfig="${maybeKubeConfig}" `;
+    }
+    return maybeKubeConfig;
+}
+
+function maybeKubeEnv(): string {
+
+    let maybeKubeConfig : string = get_conf_or("kubeConfig", null);
+    if (!maybeKubeConfig) {
+        maybeKubeConfig = "";
+    } else {
+        maybeKubeConfig = `KUBECONFIG="${maybeKubeConfig}" `;
+    }
+    return maybeKubeConfig;
 }
 
 // https://github.com/Microsoft/TypeScript/wiki/Breaking-Changes#extending-built-ins-like-error-array-and-map-may-no-longer-work
