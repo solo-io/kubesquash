@@ -47,19 +47,20 @@ fi
 
 
 # Validate token.
-curl -o /dev/null -sH "$AUTH" $GH_REPO || { echo "Error: Invalid repo, token or network issue!";  exit 1; }
+curl --fail  -o /dev/null -sH "$AUTH" $GH_REPO || { echo "Error: Invalid repo, token or network issue!";  exit 1; }
 
 # Read asset tags.
-response=$(curl -sH "$AUTH" $GH_TAGS)
+response=$(curl --fail -sH "$AUTH" $GH_TAGS)
 
 # Get ID of the asset based on given filename.
 id=$(echo "$response"|jq ".id")
 [ "$id" ] || { echo "Error: Failed to get release id for tag: $tag"; echo "$response" | awk 'length($0)<100' >&2; exit 1; }
 
-# Upload asset
-echo "Uploading asset... "
 
 # Construct url
 GH_ASSET="https://uploads.github.com/repos/$owner/$repo/releases/$id/assets?name=$(basename $filename)"
 
-curl --fail --data-binary @"$filename" -H "Authorization: token $github_api_token" -H "Content-Type: application/octet-stream" $GH_ASSET
+# Upload asset
+echo "Uploading asset $GH_ASSET ..."
+
+curl --fail --data-binary @"$filename" -H "Authorization: token $GITHUB_TOKEN" -H "Content-Type: application/octet-stream" $GH_ASSET
