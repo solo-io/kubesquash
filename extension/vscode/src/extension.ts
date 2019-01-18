@@ -40,13 +40,23 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
 
 async function getremote(extPath: string): Promise<string> {
     let pathforbin = path.join(extPath, "binaries", getSquashInfo().version);
     let execpath = path.join(pathforbin, "kubsquash");
 
     let ks = getKubeSquash();
+
+    if (fs.existsSync(execpath)) {
+        let exechash = await hash(execpath);
+        // make sure its the one we expect:
+        // this can happen on version updates.
+        if (exechash !== ks.checksum) {
+            // remove the bad binary.
+            fs.unlinkSync(execpath);
+        }
+    }
 
     if (!fs.existsSync(execpath)) {
         shelljs.mkdir('-p', pathforbin);
@@ -56,6 +66,7 @@ async function getremote(extPath: string): Promise<string> {
             vscode.window.showInformationMessage("download kubesquash complete");
         }
     }
+    // test after the download
     let exechash = await hash(execpath);
     // make sure its the one we expect:
     if (exechash !== ks.checksum) {
@@ -117,7 +128,7 @@ export class PodPickItem implements vscode.QuickPickItem {
 class SquashExtention {
 
     context: vscode.ExtensionContext;
-    squashInfo : SquashInfo;
+    squashInfo: SquashInfo;
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
@@ -129,7 +140,7 @@ class SquashExtention {
             run the squashkube binary with -server
         */
 
-        let squahspath : string = get_conf_or("path", null);
+        let squahspath: string = get_conf_or("path", null);
         if (!squahspath) {
             squahspath = await getremote(this.context.extensionPath);
         }
@@ -180,7 +191,7 @@ class SquashExtention {
         let selectedPod = item.pod;
 
         let containerRepo = get_conf_or("containerRepository", null);
-        let containerRepoArg =""
+        let containerRepoArg = ""
         if (containerRepo) {
             containerRepoArg = `--container-repo ${containerRepo}`
         }
@@ -296,12 +307,12 @@ function kubectl_get<T=any>(cmd: string, ...args: string[]): Promise<T> {
 }
 
 function kubectl(cmd: string): Promise<string> {
-    return exec(get_conf_or("kubectl-path", "kubectl") + maybeKubeConfig() +" " + cmd);
+    return exec(get_conf_or("kubectl-path", "kubectl") + maybeKubeConfig() + " " + cmd);
 }
 
 function maybeKubeConfig(): string {
 
-    let maybeKubeConfig : string = get_conf_or("kubeConfig", null);
+    let maybeKubeConfig: string = get_conf_or("kubeConfig", null);
     if (!maybeKubeConfig) {
         maybeKubeConfig = "";
     } else {
@@ -312,7 +323,7 @@ function maybeKubeConfig(): string {
 
 function maybeKubeEnv(): string {
 
-    let maybeKubeConfig : string = get_conf_or("kubeConfig", null);
+    let maybeKubeConfig: string = get_conf_or("kubeConfig", null);
     if (!maybeKubeConfig) {
         maybeKubeConfig = "";
     } else {
@@ -380,17 +391,17 @@ function get_conf_or(k: string, d: any): any {
 }
 
 class BinariesSha {
-    linux : string;
-    darwin : string;
+    linux!: string;
+    darwin!: string;
 }
 class SquashInfo {
-    version : string;
-    baseName : string;
-    binaries : BinariesSha;
+    version!: string;
+    baseName!: string;
+    binaries!: BinariesSha;
 }
 
-function getSquashInfo() : SquashInfo {
-    return <SquashInfo> <unknown> squashVersionData;
+function getSquashInfo(): SquashInfo {
+    return <SquashInfo><unknown>squashVersionData;
 }
 
 interface KubesquashBinary {
@@ -411,7 +422,7 @@ function getKubeSquash(): KubesquashBinary {
     switch (osver) {
         case 'linux':
             return createKubesquashBinary("linux", getSquashInfo().binaries.linux);
-            case 'darwin':
+        case 'darwin':
             return createKubesquashBinary("osx", getSquashInfo().binaries.darwin);
         default:
             throw new Error(osver + " is current unsupported");
