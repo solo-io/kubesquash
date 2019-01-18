@@ -1,3 +1,4 @@
 target/
+extension/vscode/binaries/
 .idea/
 *.iml
