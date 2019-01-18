@@ -23,7 +23,7 @@ push-containers: target/kubesquash-container-dlv-pushed target/kubesquash-contai
 release: push-containers release-binaries
 
 .PHONY: upload-release
-upload-release: release
+upload-release:
 	./hack/github-release.sh owner=solo-io repo=kubesquash tag=$(VERSION)
 	@$(foreach BINARY,$(RELEASE_BINARIES),./hack/upload-github-release-asset.sh owner=solo-io repo=kubesquash tag=$(VERSION) filename=$(BINARY);)
 
