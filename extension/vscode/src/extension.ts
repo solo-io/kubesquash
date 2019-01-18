@@ -8,6 +8,8 @@ import * as path from 'path';
 import * as download from 'download';
 import * as crypto from 'crypto';
 
+import * as squashVersionData from './squash.json';
+
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
@@ -37,8 +39,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 }
 
+// this method is called when your extension is deactivated
+export function deactivate() {}
+
 async function getremote(extPath: string): Promise<string> {
-    let pathforbin = path.join(extPath, "binaries", version);
+    let pathforbin = path.join(extPath, "binaries", getSquashInfo().version);
     let execpath = path.join(pathforbin, "kubsquash");
 
     let ks = getKubeSquash();
@@ -54,7 +59,9 @@ async function getremote(extPath: string): Promise<string> {
     let exechash = await hash(execpath);
     // make sure its the one we expect:
     if (exechash !== ks.checksum) {
-        throw new Error("bad checksum!");
+        // remove the bad binary.
+        fs.unlinkSync(execpath);
+        throw new Error("bad checksum for binary; download may be corrupted - please try again.");
     }
     fs.chmodSync(execpath, 0o755);
     return execpath;
@@ -92,12 +99,6 @@ function download2file(what: string, to: string): Promise<any> {
     });
 }
 
-
-// this method is called when your extension is deactivated
-export function deactivate() {
-
-}
-
 export class PodPickItem implements vscode.QuickPickItem {
     label: string;
     description: string;
@@ -116,9 +117,11 @@ export class PodPickItem implements vscode.QuickPickItem {
 class SquashExtention {
 
     context: vscode.ExtensionContext;
+    squashInfo : SquashInfo;
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
+        this.squashInfo = getSquashInfo();
     }
 
     async debug() {
@@ -376,12 +379,19 @@ function get_conf_or(k: string, d: any): any {
     return v;
 }
 
-const version = "v0.1.3";
-const baseName = "kubesquash";
-const binaries = {
-    "linux": createKubesquashBinary("linux", "0a7a31bf250954fcc38061ac749efd928d31e6dbc720c02f167ded8caf81c171"),
-    "darwin": createKubesquashBinary("osx", "f8b4621d10f89b906063a8aea7a4c37ff375f2a57c25378d67cb405855c057d8")
-};
+class BinariesSha {
+    linux : string;
+    darwin : string;
+}
+class SquashInfo {
+    version : string;
+    baseName : string;
+    binaries : BinariesSha;
+}
+
+function getSquashInfo() : SquashInfo {
+    return <SquashInfo> <unknown> squashVersionData;
+}
 
 interface KubesquashBinary {
     link: string;
@@ -390,7 +400,7 @@ interface KubesquashBinary {
 
 function createKubesquashBinary(os: string, checksum: string): KubesquashBinary {
     return {
-        link: "https://github.com/solo-io/kubesquash/releases/download/" + version + "/" + baseName + "-" + os,
+        link: "https://github.com/solo-io/kubesquash/releases/download/" + getSquashInfo().version + "/" + getSquashInfo().baseName + "-" + os,
         checksum: checksum
     };
 }
@@ -400,8 +410,9 @@ function getKubeSquash(): KubesquashBinary {
     var osver = process.platform;
     switch (osver) {
         case 'linux':
-        case 'darwin':
-            return binaries[osver];
+            return createKubesquashBinary("linux", getSquashInfo().binaries.linux);
+            case 'darwin':
+            return createKubesquashBinary("osx", getSquashInfo().binaries.darwin);
         default:
             throw new Error(osver + " is current unsupported");
     }

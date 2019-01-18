@@ -1,0 +1,8 @@
+{
+    "version" : "v0.1.3",
+    "baseName" : "kubesquash",
+    "binaries" : {
+        "linux":  "0a7a31bf250954fcc38061ac749efd928d31e6dbc720c02f167ded8caf81c171",
+        "darwin": "f8b4621d10f89b906063a8aea7a4c37ff375f2a57c25378d67cb405855c057d8"
+    }
+}
