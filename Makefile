@@ -72,9 +72,13 @@ target/kubesquash-container-gdb-pushed: target/kubesquash-container-gdb-containe
 	docker push $(DOCKER_REPO)/kubesquash-container-gdb:$(VERSION)
 	touch $@
 
-.PHONY: extension
+.PHONY: publish-extension
 publish-extension: bump-extension-version
-	cd extension/vscode && vsce package && vsce publish -p $(VSCODE_TOKEN)
+	./hack/publish-extension.sh
+
+.PHONY: package-extension
+package-extension: bump-extension-version
+	cd extension/vscode && vsce package
 
 .PHONY: bump-extension-version
 bump-extension-version:
