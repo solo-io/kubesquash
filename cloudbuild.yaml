@@ -17,13 +17,7 @@ steps:
   entrypoint: make
   args: ['containers']
 
-- name: 'gcr.io/cloud-builders/docker'
-  env:
-  - VERSION=$TAG_NAME
-  entrypoint: make
-  args: ['push-containers']
-
-- name: 'gcr.io/cloud-builders/go'
+- name: 'gcr.io/$PROJECT_ID/vsce'
   env:
   - VERSION=$TAG_NAME
   entrypoint: make
@@ -32,6 +26,13 @@ steps:
 - name: 'gcr.io/$PROJECT_ID/vsce'
   args: ['package']
   dir: ./extension/vscode
+
+# publish
+- name: 'gcr.io/cloud-builders/docker'
+  env:
+  - VERSION=$TAG_NAME
+  entrypoint: make
+  args: ['push-containers']
 
 - name: 'gcr.io/cloud-builders/go'
   env:
