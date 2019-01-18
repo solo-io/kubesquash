@@ -83,7 +83,7 @@ package-extension: bump-extension-version
 .PHONY: bump-extension-version
 bump-extension-version:
 	cd extension/vscode && \
-	jq '.version="$(VERSION) | .version=.version[1:]"' package.json > package.json.tmp && \
+	jq '.version="$(VERSION)" | .version=.version[1:]' package.json > package.json.tmp && \
 	mv package.json.tmp package.json && \
 	jq '.version="$(VERSION)" | .binaries.linux="$(shell sha256sum target/kubesquash-linux|cut -f1 -d" ")" | .binaries.darwin="$(shell sha256sum target/kubesquash-osx|cut -f1 -d" ")"' src/squash.json > src/squash.json.tmp && \
 	mv src/squash.json.tmp src/squash.json
