@@ -23,10 +23,17 @@ steps:
   entrypoint: make
   args: ['bump-extension-version']
 
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install', '@types/download']
+  dir: ./extension/vscode
+
+- name: 'gcr.io/cloud-builders/npm'
+  args: ['install']
+  dir: ./extension/vscode
+
 - name: 'gcr.io/$PROJECT_ID/vsce'
   args: ['package']
   dir: ./extension/vscode
-
 # publish
 - name: 'gcr.io/cloud-builders/docker'
   env:
