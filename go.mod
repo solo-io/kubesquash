@@ -117,7 +117,7 @@ require (
 	k8s.io/component-base v0.0.0-20190118114819-7b44618cd005 // indirect
 	k8s.io/klog v0.1.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20190115222348-ced9eb3070a5 // indirect
-	k8s.io/kubernetes v1.10.2 // indirect
+	k8s.io/kubernetes v1.10.3 // indirect
 	k8s.io/sample-controller v0.0.0-20180509192352-8a66ce0ffe34 // indirect
 	k8s.io/utils v0.0.0-20171122000934-aedf551cdb8b // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect
