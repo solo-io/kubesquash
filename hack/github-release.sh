@@ -35,4 +35,4 @@ BODY=$(cat <<EOF
 EOF
 )
 
-curl -d "${BODY}" -sH "$AUTH" -XPOST ${GH_REPO}/releases
+curl --fail -d "${BODY}" -sH "$AUTH" -XPOST ${GH_REPO}/releases
