@@ -3,11 +3,11 @@ module github.com/solo-io/kubesquash
 require (
 	cloud.google.com/go v0.22.0
 	github.com/Azure/go-autorest v9.9.0+incompatible
-	github.com/GoogleContainerTools/skaffold v0.5.0
+	github.com/GoogleContainerTools/skaffold v0.21.0
 	github.com/PuerkitoBio/purell v1.1.0
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578
 	github.com/asaskevich/govalidator v0.0.0-20180315120708-ccb8e960c48f
-	github.com/davecgh/go-spew v1.1.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/dgrijalva/jwt-go v0.0.0-20170201225849-2268707a8f08
 	github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680
 	github.com/go-openapi/analysis v0.0.0-20180418034448-863ac7f90e00
@@ -38,14 +38,19 @@ require (
 	github.com/onsi/ginkgo v1.5.0
 	github.com/onsi/gomega v1.3.0
 	github.com/pkg/errors v0.8.0
-	github.com/sirupsen/logrus v1.0.5
+	github.com/sirupsen/logrus v1.3.0 // indirect
+	github.com/solo-io/go-utils v0.1.0
+	github.com/solo-io/solo-kit v0.2.17 // indirect
 	github.com/solo-io/squash v0.0.0-20180809150748-8641d4dd3ec8
 	github.com/spf13/afero v1.1.0
 	github.com/spf13/pflag v0.0.0-20171106142849-4c012f6dcd95
-	golang.org/x/crypto v0.0.0-20170825220121-81e90905daef
+	go.uber.org/atomic v1.3.2 // indirect
+	go.uber.org/multierr v1.1.0 // indirect
+	go.uber.org/zap v1.9.1
+	golang.org/x/crypto v0.0.0-20180904163835-0709b304e793
 	golang.org/x/net v0.0.0-20180509002218-f73e4c9ed3b7
 	golang.org/x/oauth2 v0.0.0-20170412232759-a6bd8cefa181
-	golang.org/x/sys v0.0.0-20180511133906-9950ad118b73
+	golang.org/x/sys v0.0.0-20180905080454-ebe1bf3edb33
 	golang.org/x/text v0.3.0
 	golang.org/x/time v0.0.0-20161028155119-f51c12702a4d
 	google.golang.org/appengine v1.0.0
