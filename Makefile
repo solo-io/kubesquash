@@ -24,8 +24,8 @@ release: push-containers release-binaries
 
 .PHONY: upload-release
 upload-release: release
-	./hack/github-release.sh github_api_token=$(GITHUB_TOKEN) owner=solo-io repo=kubesquash tag=$(VERSION)
-	@$(foreach BINARY,$(RELEASE_BINARIES),./hack/upload-github-release-asset.sh github_api_token=$(GITHUB_TOKEN) owner=solo-io repo=kubesquash tag=$(VERSION) filename=$(BINARY);)
+	./hack/github-release.sh owner=solo-io repo=kubesquash tag=$(VERSION)
+	@$(foreach BINARY,$(RELEASE_BINARIES),./hack/upload-github-release-asset.sh owner=solo-io repo=kubesquash tag=$(VERSION) filename=$(BINARY);)
 
 SRCS=$(shell find ./pkg -name "*.go") $(shell find ./cmd -name "*.go")
 

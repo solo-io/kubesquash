@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 #
 # Author: Stefan Buck
 # License: MIT
@@ -11,13 +11,13 @@
 # * repo
 # * tag
 # * filename
-# * github_api_token
 #
 # Script to upload a release asset using the GitHub API v3.
+# Set GITHUB_TOKEN to your token.
 #
 # Example:
 #
-# upload-github-release-asset.sh github_api_token=TOKEN owner=stefanbuck repo=playground tag=v0.1.0 filename=./build.zip
+# upload-github-release-asset.sh owner=stefanbuck repo=playground tag=v0.1.0 filename=./build.zip
 #
 
 # Check dependencies.
@@ -37,7 +37,7 @@ done
 GH_API="https://api.github.com"
 GH_REPO="$GH_API/repos/$owner/$repo"
 GH_TAGS="$GH_REPO/releases/tags/$tag"
-AUTH="Authorization: token $github_api_token"
+AUTH="Authorization: token $GITHUB_TOKEN"
 WGET_ARGS="--content-disposition --auth-no-challenge --no-cookie"
 CURL_ARGS="-LJO#"
 
