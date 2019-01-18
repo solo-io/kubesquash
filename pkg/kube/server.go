@@ -1,16 +1,19 @@
 package kube
 
 import (
+	"context"
 	"io"
 	"net"
 	"os"
 	"os/exec"
 
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
+
+	"github.com/solo-io/go-utils/contextutils"
 )
 
-func startServer(cfg Config, pid int) error {
+func startServer(ctx context.Context, cfg Config, pid int) error {
 	// we proxy so we can exit the debugger when disconnection occours
 
 	dbgInfo := debuggerServer[cfg.Debugger]
@@ -18,7 +21,7 @@ func startServer(cfg Config, pid int) error {
 		return errors.New("unknown debugger")
 	}
 
-	cmd, err := startDebuggerServer(cfg, pid, dbgInfo)
+	cmd, err := startDebuggerServer(ctx, cfg, pid, dbgInfo)
 	if err != nil {
 		return err
 	}
@@ -59,16 +62,17 @@ func startServer(cfg Config, pid int) error {
 	return <-errchan
 }
 
-func startDebuggerServer(cfg Config, pid int, dbgInfo *DebuggerInfo) (*exec.Cmd, error) {
+func startDebuggerServer(ctx context.Context, cfg Config, pid int, dbgInfo *DebuggerInfo) (*exec.Cmd, error) {
 	// TODO: use squash's interfaces for a debug server
 	cmd := exec.Command("dlv", dbgInfo.CmdlineGen(pid)...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	log.WithFields(log.Fields{"cmd": cmd, "args": cmd.Args}).Debug("dlv command")
+	logger := contextutils.LoggerFrom(ctx)
+	logger.Debugw("dlv command", "cmd", cmd, "args", cmd.Args)
 
 	err := cmd.Start()
 	if err != nil {
-		log.WithField("err", err).Error("Failed to start dlv")
+		logger.With(zap.Error(err)).Error("Failed to start dlv")
 		return nil, err
 	}
 

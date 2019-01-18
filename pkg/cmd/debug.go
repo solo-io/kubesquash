@@ -11,12 +11,10 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/GoogleContainerTools/skaffold/pkg/skaffold/config"
-	"github.com/GoogleContainerTools/skaffold/pkg/skaffold/util"
-	yaml "gopkg.in/yaml.v2"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	skaffkubeapi "github.com/GoogleContainerTools/skaffold/pkg/skaffold/kubernetes"
+	"github.com/solo-io/go-utils/kubeutils"
+
 	survey "gopkg.in/AlecAivazis/survey.v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -68,9 +66,10 @@ func StartDebugContainer(config SquashConfig) error {
 	}
 	ns, podname, image := config.Namespace, config.Pod, config.Container
 	if podname == "" && image == "" {
-		if !config.NoDetectSkaffold {
-			image, podname, _ = SkaffoldConfigToPod(skaffoldFile)
-		}
+		// TODO: bring this back
+		// if !config.NoDetectSkaffold {
+		// 	image, podname, _ = SkaffoldConfigToPod(skaffoldFile)
+		// }
 	}
 
 	dbg, err := dp.GetMissing(ns, podname, image)
@@ -138,10 +137,10 @@ func StartDebugContainer(config SquashConfig) error {
 		}
 
 		// Delaying to allow port forwarding to complete.
-		duration := time.Duration(5)*time.Second
+		duration := time.Duration(5) * time.Second
 		time.Sleep(duration)
 
-		cmd2 := exec.Command("dlv", "connect",  "127.0.0.1:" + DebuggerPort)
+		cmd2 := exec.Command("dlv", "connect", "127.0.0.1:"+DebuggerPort)
 		cmd2.Stdout = os.Stdout
 		cmd2.Stderr = os.Stderr
 		cmd2.Stdin = os.Stdin
@@ -237,6 +236,7 @@ type DebugPrepare struct {
 	config    SquashConfig
 }
 
+/*
 func GetSkaffoldConfig(filename string) (*config.SkaffoldConfig, error) {
 
 	buf, err := util.ReadConfiguration(filename)
@@ -280,15 +280,22 @@ func SkaffoldConfigToPod(filename string) (string, string, error) {
 	podname := "" //latestConfig.Deploy.Name
 	return image, podname, nil
 }
-
+*/
 func (dp *DebugPrepare) getClientSet() kubernetes.Interface {
 	if dp.clientset != nil {
 		return dp.clientset
 	}
-	clientset, err := skaffkubeapi.GetClientset()
+
+	config, err := kubeutils.GetConfig("", "")
 	if err != nil {
 		panic(err)
 	}
+
+	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+
 	dp.clientset = clientset
 	return dp.clientset
 
@@ -487,7 +494,6 @@ func (dp *DebugPrepare) choosePod(ns, image string) (*v1.Pod, error) {
 }
 
 func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername string) (*v1.Pod, error) {
-	trueVar := true
 	const crisockvolume = "crisock"
 	isDebugServer := ""
 	if dp.config.DebugServer {
@@ -517,7 +523,11 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 					MountPath: squashkube.CriRuntime,
 				}},
 				SecurityContext: &v1.SecurityContext{
-					Privileged: &trueVar,
+					Capabilities: &v1.Capabilities{
+						Add: []v1.Capability{
+							"SYS_PTRACE",
+						},
+					},
 				},
 				Env: []v1.EnvVar{{
 					Name:  "SQUASH_NAMESPACE",
