@@ -73,8 +73,16 @@ target/kubesquash-container-gdb-pushed: target/kubesquash-container-gdb-containe
 	touch $@
 
 .PHONY: extension
-publish-extension:
-	cd extension/vscode && vsce package && vsce publish -p $(TOKEN)
+publish-extension: bump-extension-version
+	cd extension/vscode && vsce package && vsce publish -p $(VSCODE_TOKEN)
+
+.PHONY: bump-extension-version
+bump-extension-version:
+	cd extension/vscode && \
+	jq '.version="$(VERSION)"' package.json > package.json.tmp && \
+	mv package.json.tmp package.json && \
+	jq '.version="$(VERSION)" | .binaries.linux="$(shell sha256sum target/kubesquash-linux|cut -f1 -d" ")" | .binaries.darwin="$(shell sha256sum target/kubesquash-osx|cut -f1 -d" ")"' src/squash.json > src/squash.json.tmp && \
+	mv src/squash.json.tmp src/squash.json
 
 .PHONY: clean
 clean:
