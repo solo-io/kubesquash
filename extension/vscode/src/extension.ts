@@ -400,7 +400,7 @@ class SquashInfo {
 }
 
 function getSquashInfo(): SquashInfo {
-    return <SquashInfo><unknown>squashVersionData;
+    return <SquashInfo>squashVersionData;
 }
 
 interface KubesquashBinary {
