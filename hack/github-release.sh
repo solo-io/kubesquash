@@ -21,7 +21,11 @@ fi
 # Validate token.
 curl -o /dev/null -sH "$AUTH" $GH_REPO || { echo "Error: Invalid repo, token or network issue!";  exit 1; }
 
-
+# check if we already have a release:
+if curl --fail -o /dev/null -sH "$AUTH" $GH_TAGS; then
+  # release exists - no need to create it. and no need to error
+  exit 0
+fi
 
 BODY=$(cat <<EOF
 {
