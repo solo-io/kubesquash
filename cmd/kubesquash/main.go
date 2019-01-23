@@ -37,6 +37,7 @@ func main() {
 
 	flag.BoolVar(&cfg.Machine, "machine", false, "machine mode input and output")
 	flag.StringVar(&cfg.Debugger, "debugger", "", "Debugger to use")
+	flag.StringVar(&cfg.ServiceAccount, "sa", "", "Service account to use for the kubesquash pod")
 	flag.StringVar(&cfg.Namespace, "namespace", "", "Namespace to debug")
 	flag.StringVar(&cfg.Pod, "pod", "", "Pod to debug")
 	flag.StringVar(&cfg.Container, "container", "", "Container to debug")

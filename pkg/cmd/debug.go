@@ -44,11 +44,12 @@ type SquashConfig struct {
 	DebugContainerRepo    string
 	DebugServer           bool
 
-	Debugger  string
-	Namespace string
-	Pod       string
-	Container string
-	Machine   bool
+	Debugger       string
+	ServiceAccount string
+	Namespace      string
+	Pod            string
+	Container      string
+	Machine        bool
 
 	CRISock string
 }
@@ -509,9 +510,10 @@ func (dp *DebugPrepare) debugPodFor(debugger string, in *v1.Pod, containername s
 			Labels:       map[string]string{"squash": "kubesquash-container"},
 		},
 		Spec: v1.PodSpec{
-			HostPID:       true,
-			RestartPolicy: v1.RestartPolicyNever,
-			NodeName:      in.Spec.NodeName,
+			HostPID:            true,
+			RestartPolicy:      v1.RestartPolicyNever,
+			NodeName:           in.Spec.NodeName,
+			ServiceAccountName: dp.config.ServiceAccount,
 			Containers: []v1.Container{{
 				Name:      ContainerName,
 				Image:     dp.config.DebugContainerRepo + "/" + ImageContainer + "-" + debugger + ":" + dp.config.DebugContainerVersion,
