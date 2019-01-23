@@ -16,6 +16,8 @@ IMPORTANT:
   * Due to a technical limitation, KubeSquash doesn't support scratch images at the moment (KubeSquash relies on the 'ls' command present in the image).
 `
 
+var KubeSquashVersion string
+
 func main() {
 	var cfg cmd.SquashConfig
 	flag.Usage = func() {
@@ -40,7 +42,14 @@ func main() {
 	flag.StringVar(&cfg.Container, "container", "", "Container to debug")
 	flag.StringVar(&cfg.CRISock, "crisock", "/var/run/dockershim.sock", "The path to the CRI socket")
 
+	version := flag.Bool("version", false, "prints current app version")
+
 	flag.Parse()
+
+	if *version {
+		fmt.Println(KubeSquashVersion)
+		os.Exit(0)
+	}
 
 	err := cmd.StartDebugContainer(cfg)
 	if err != nil {

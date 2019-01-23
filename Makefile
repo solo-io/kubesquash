@@ -29,17 +29,20 @@ upload-release:
 
 SRCS=$(shell find ./pkg -name "*.go") $(shell find ./cmd -name "*.go")
 
+# Pass in build-time variables
+LDFLAGS=-ldflags "-X main.KubeSquashVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageRepo=$(DOCKER_REPO)"
+
 target:
 	[ -d $@ ] || mkdir -p $@
 
 target/kubesquash: target $(SRCS)
-	go build -ldflags "-X github.com/solo-io/kubesquash/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/kubesquash
+	go build  ${LDFLAGS} -o $@ ./cmd/kubesquash
 
 target/kubesquash-osx: target $(SRCS)
-	GOOS=darwin go build -ldflags "-X github.com/solo-io/kubesquash/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/kubesquash
+	GOOS=darwin go build ${LDFLAGS} -o $@ ./cmd/kubesquash
 
 target/kubesquash-linux: target $(SRCS)
-	GOOS=linux go build -ldflags "-X github.com/solo-io/kubesquash/pkg/cmd.ImageVersion=$(VERSION) -X github.com/solo-io/kubesquash/pkg/cmd.ImageRepo=$(DOCKER_REPO)" -o $@ ./cmd/kubesquash
+	GOOS=linux go build ${LDFLAGS} -o $@ ./cmd/kubesquash
 
 target/kubesquash-container/:
 	[ -d $@ ] || mkdir -p $@
