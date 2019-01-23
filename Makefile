@@ -1,29 +1,32 @@
 .PHONY: all
-all: binaries containers
+all: binaries containers ## (default) Builds binaries and containers
 
 DOCKER_REPO ?= soloio
 VERSION ?= $(shell git describe --tags)
 
+.PHONY: help
+help:
+	 @echo -e "$$(grep -hE '^\S+:.*##' $(MAKEFILE_LIST) | sort | sed -e 's/:.*##\s*/:/' -e 's/^\(.\+\):\(.*\)/\\x1b[36m\1\\x1b[m:\2/' | column -c2 -t -s :)"
+
 .PHONY: binaries
-binaries: target/kubesquash-container/kubesquash-container target/kubesquash
+binaries: target/kubesquash-container/kubesquash-container target/kubesquash # Builds kubesquash binaries in and places them in target/ folder
 
-
-RELEASE_BINARIES := target/kubesquash-linux target/kubesquash-osx 
+RELEASE_BINARIES := target/kubesquash-linux target/kubesquash-osx
 
 .PHONY: release-binaries
 release-binaries: $(RELEASE_BINARIES)
 
 .PHONY: containers
-containers: target/kubesquash-container-dlv-container target/kubesquash-container-gdb-container 
+containers: target/kubesquash-container-dlv-container target/kubesquash-container-gdb-container ## Builds kubesquash debug containers
 
 .PHONY: push-containers
-push-containers: target/kubesquash-container-dlv-pushed target/kubesquash-container-gdb-pushed
+push-containers: target/kubesquash-container-dlv-pushed target/kubesquash-container-gdb-pushed ## Pushes kubesquash debug containers to $(DOCKER_REPO)
 
 .PHONY: release
-release: push-containers release-binaries
+release: push-containers release-binaries ## Pushes containers to $(DOCKER_REPO) and releases binaries to GitHub
 
 .PHONY: upload-release
-upload-release:
+upload-release: ## Uploads artifacts to GitHub releases
 	./hack/github-release.sh owner=solo-io repo=kubesquash tag=$(VERSION)
 	@$(foreach BINARY,$(RELEASE_BINARIES),./hack/upload-github-release-asset.sh owner=solo-io repo=kubesquash tag=$(VERSION) filename=$(BINARY);)
 
@@ -73,15 +76,15 @@ target/kubesquash-container-gdb-pushed: target/kubesquash-container-gdb-containe
 	touch $@
 
 .PHONY: publish-extension
-publish-extension: bump-extension-version
+publish-extension: bump-extension-version ## (vscode) Publishes extension
 	./hack/publish-extension.sh
 
 .PHONY: package-extension
-package-extension: bump-extension-version
+package-extension: bump-extension-version ## (vscode) Packages extension
 	cd extension/vscode && vsce package
 
 .PHONY: bump-extension-version
-bump-extension-version:
+bump-extension-version:  ## (vscode) Bumps extension version
 	cd extension/vscode && \
 	jq '.version="$(VERSION)" | .version=.version[1:]' package.json > package.json.tmp && \
 	mv package.json.tmp package.json && \
@@ -89,7 +92,7 @@ bump-extension-version:
 	mv src/squash.json.tmp src/squash.json
 
 .PHONY: clean
-clean:
+clean: ## Deletes target folder
 	rm -rf target
 
-dist: target/kubesquash-container-gdb-pushed target/kubesquash-container-dlv-pushed
+dist: target/kubesquash-container-gdb-pushed target/kubesquash-container-dlv-pushed ## Pushes all containers to $(DOCKER_REPO)
