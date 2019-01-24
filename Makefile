@@ -39,20 +39,20 @@ target:
 	[ -d $@ ] || mkdir -p $@
 
 target/kubesquash: target $(SRCS)
-	go build  ${LDFLAGS} -o $@ ./cmd/kubesquash
+	go build ${LDFLAGS} -o $@ ./cmd/kubesquash
 
 target/kubesquash-osx: target $(SRCS)
 	GOOS=darwin go build ${LDFLAGS} -o $@ ./cmd/kubesquash
 
 target/kubesquash-linux: target $(SRCS)
-	GOOS=linux go build ${LDFLAGS} -o $@ ./cmd/kubesquash
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -tags netgo ${LDFLAGS} -o $@ ./cmd/kubesquash
 
 target/kubesquash-container/:
 	[ -d $@ ] || mkdir -p $@
 
 target/kubesquash-container/kubesquash-container: | target/kubesquash-container/
 target/kubesquash-container/kubesquash-container: $(SRCS)
-	GOOS=linux CGO_ENABLED=0  go build -ldflags '-w' -o ./target/kubesquash-container/kubesquash-container ./cmd/kubesquash-container/
+	GOOS=linux CGO_ENABLED=0 go build -a -tags netgo -ldflags '-w' -o ./target/kubesquash-container/kubesquash-container ./cmd/kubesquash-container/
 
 
 target/kubesquash-container/Dockerfile.dlv:    | target/kubesquash-container/
