@@ -67,6 +67,11 @@
           "default": null,
           "description": "Path of the source files in the remote executable."
         },
+        "kubesquash.extraArgs": {
+          "type": "string",
+          "default": null,
+          "description": "Extra arguments to pass to the kubesquash binary."
+        },
         "kubesquash.kubeConfig": {
           "type": "string",
           "default": null,

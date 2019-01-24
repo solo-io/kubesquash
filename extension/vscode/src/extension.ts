@@ -195,8 +195,9 @@ class SquashExtention {
             containerRepoArg = `--container-repo ${containerRepo}`
         }
 
+        let extraArgs  = get_conf_or("extraArgs", "");
         // now invoke kubesquash
-        let stdout = await exec(maybeKubeEnv() + `${squahspath} ${containerRepoArg} -machine -debug-server -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
+        let stdout = await exec(maybeKubeEnv() + `${squahspath} ${extraArgs} ${containerRepoArg} -machine -debug-server -pod ${selectedPod.metadata.name} -namespace ${selectedPod.metadata.namespace}`);
         let squashPodRegex = /pod.name:\s+(\S+)\s*$/g;
         let match = squashPodRegex.exec(stdout);
         if (match === null) {
