@@ -1,6 +1,14 @@
-# Deprecated - please use Squash instead
-## The features from Kubesquash have been merged into Squash. All active development shall now occur in the Squash repo.
-[https://github.com/solo-io/squash](https://github.com/solo-io/squash)
+# Deprecated - please use [Squash](https://github.com/solo-io/squash) instead
+* The features from Kubesquash have been merged into Squash.
+* Active development occurs in the Squash repo.
+* [https://github.com/solo-io/squash](https://github.com/solo-io/squash)
+
+
+<br>
+<br>
+<br>
+
+
 
 
 
