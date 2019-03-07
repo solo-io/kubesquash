@@ -1,3 +1,10 @@
+# Deprecated - please use Squash instead
+## The features from Kubesquash have been merged into Squash. All active development shall now occur in the Squash repo.
+[https://github.com/solo-io/squash](https://github.com/solo-io/squash)
+
+
+
+
 <h1 align="center">
     <img src="/images/KubeSquash.png" alt="squash" width="285" height="248">
 </h1>
